@@ -1,0 +1,122 @@
+<?xml version="1.0"?><!--
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Mageplaza\Membership\Api\Data\HistoryInterface" type="Mageplaza\Membership\Model\History"/>
+    <preference for="Mageplaza\Membership\Api\Data\HistorySearchResultInterface" type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Mageplaza\Membership\Api\HistoryRepositoryInterface" type="Mageplaza\Membership\Model\HistoryRepository"/>
+
+    <preference for="Mageplaza\Membership\Api\Data\CustomerInterface" type="Mageplaza\Membership\Model\Customer"/>
+    <preference for="Mageplaza\Membership\Api\Data\CustomerSearchResultInterface"  type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Mageplaza\Membership\Api\CustomerRepositoryInterface" type="Mageplaza\Membership\Model\CustomerRepository"/>
+
+    <preference for="Mageplaza\Membership\Api\Data\MembershipInterface" type="Mageplaza\Membership\Model\Membership"/>
+    <preference for="Mageplaza\Membership\Api\Data\MembershipPageInterface" type="Mageplaza\Membership\Model\Api\MembershipPage"/>
+    <preference for="Mageplaza\Membership\Api\Data\MembershipSearchResultInterface"  type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Mageplaza\Membership\Api\Data\MembershipPageSearchResultInterface"  type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Mageplaza\Membership\Api\MembershipRepositoryInterface" type="Mageplaza\Membership\Model\MembershipRepository"/>
+    <type name="Magento\Quote\Model\Quote\Item\Repository">
+        <arguments>
+            <argument name="cartItemProcessors" xsi:type="array">
+                <item name="mpmembership" xsi:type="object">Mageplaza\Membership\Model\Quote\Item\CartItemProcessor\Proxy</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="mpmembership_membership_grid_data_source" xsi:type="string">Mageplaza\Membership\Model\ResourceModel\Membership\Grid\Collection</item>
+            </argument>
+        </arguments>
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="mpmembership_member_grid_data_source" xsi:type="string">Mageplaza\Membership\Model\ResourceModel\Customer\Grid\Collection</item>
+            </argument>
+        </arguments>
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="mpmembership_history_grid_data_source" xsi:type="string">Mageplaza\Membership\Model\ResourceModel\History\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Mageplaza\Membership\Model\ResourceModel\Membership\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">mageplaza_membership_list</argument>
+            <argument name="resourceModel" xsi:type="string">Mageplaza\Membership\Model\ResourceModel\Membership</argument>
+        </arguments>
+    </type>
+    <type name="Mageplaza\Membership\Model\ResourceModel\Customer\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">mageplaza_membership_customer</argument>
+            <argument name="resourceModel" xsi:type="string">Mageplaza\Membership\Model\ResourceModel\Customer</argument>
+        </arguments>
+    </type>
+    <type name="Mageplaza\Membership\Model\ResourceModel\History\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">mageplaza_membership_history</argument>
+            <argument name="resourceModel" xsi:type="string">Mageplaza\Membership\Model\ResourceModel\History</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Magento\CatalogSearch\Block\SearchResult\ListProduct" type="Magento\Catalog\Block\Product\ListProduct">
+        <arguments>
+            <argument name="catalogLayer" xsi:type="object">Magento\Catalog\Model\Layer\Search</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Catalog\Block\Product\ListProduct">
+        <plugin name="mpmembership_append_options_list_product" type="Mageplaza\Membership\Plugin\Block\Product\ListProduct"/>
+    </type>
+    <type name="Magento\CatalogWidget\Block\Product\ProductsList">
+        <plugin name="mpmembership_append_options_product_list" type="Mageplaza\Membership\Plugin\Block\Widget\ProductsList"/>
+    </type>
+
+    <type name="Magento\Quote\Api\CartTotalRepositoryInterface">
+        <plugin name="mpmembership_add_item_notice" type="Mageplaza\Membership\Plugin\Model\Quote\CartTotalRepository"/>
+    </type>
+
+    <type name="Mageplaza\PdfInvoice\Block\PdfItems">
+        <plugin name="mpmembership_add_membership_custom_options" type="Mageplaza\Membership\Plugin\Block\PdfItems"/>
+    </type>
+
+    <type name="Magento\Quote\Model\Quote\Item\ToOrderItem">
+        <plugin name="mpmembership_move_item_option_to_order_item" type="Mageplaza\Membership\Plugin\Model\Quote\ToOrderItem"/>
+    </type>
+
+    <type name="Magento\Catalog\Model\ResourceModel\Product">
+        <plugin name="mpmembership_validate_product_attributes" type="Mageplaza\Membership\Plugin\Model\Catalog\Product"/>
+    </type>
+
+    <type name="Mageplaza\Osc\Api\CheckoutManagementInterface">
+        <plugin name="mpmembership_check_update_qty" type="Mageplaza\Membership\Plugin\Api\Osc\CheckoutManagement"/>
+    </type>
+
+    <type name="Magento\Quote\Model\QuoteRepository">
+        <plugin name="mp_membership_add_product_option" type="Mageplaza\Membership\Plugin\Model\Quote\QuoteRepository"/>
+    </type>
+    <type name="Magento\Wishlist\Model\Item">
+        <plugin name="mpmembership_wishlist_item" type="Mageplaza\Membership\Plugin\Model\Wishlist\Item"/>
+    </type>
+    <type name="Magento\Checkout\Model\GuestPaymentInformationManagement">
+        <plugin name="mpmembership_before_place_order" type="Mageplaza\Membership\Model\Plugin\Checkout\GuestPaymentInformationManagement"/>
+    </type>
+</config>

@@ -1,0 +1,75 @@
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+
+.admin__scope-old .form-inline .fieldset > .field > .label span {
+    word-break: unset;
+}
+
+.col-delete .delete-option span {
+    display: none;
+}
+
+.col-delete .delete-option {
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.col-delete .delete-option:before {
+    -webkit-font-smoothing: antialiased;
+    font-family: 'Admin Icons';
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    speak: none;
+    content: '\e630';
+    font-size: 2rem;
+}
+
+#manage-titles-content {
+    padding-bottom: 0;
+}
+
+#manage-titles-content .fieldset {
+    margin-bottom: 1.9rem;
+}
+
+#membership_tabs_display_content img {
+    display: inline-block;
+    margin: 0 5px 0 0;
+    vertical-align: middle;
+}
+
+#membership_tabs_display_content input[type="file"] {
+    padding: 0;
+}
+
+#membership_tabs_display_content .delete-image {
+    display: block;
+    margin: 5px 0;
+    white-space: nowrap;
+}
+
+#history_grid_filter_action {
+    min-width: 100px;
+}

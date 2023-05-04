@@ -1,0 +1,135 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+use Mageplaza\Membership\Block\Account\Dashboard\Membership;
+use Mageplaza\Membership\Helper\Data;
+use Mageplaza\Membership\Model\Config\Source\FieldRenderer;
+use Mageplaza\Membership\Model\Config\Source\HistoryAction;
+
+/**@var Membership $block */
+if (!$membership = $block->getMembership()) {
+    return;
+}
+
+$formKey     = $block->getFormKey();
+$bgColor     = $membership->getBackgroundColor() ?: '#1979c3';
+$featured    = $block->getMembershipFeaturedImage();
+$product     = $block->getProduct($membership);
+$information = $block->getInformation($membership);
+$productId   = $product ? $product->getId() : 0;
+$price       = $product ? $product->getData(FieldRenderer::PRICE) : 0;
+$action      = HistoryAction::RE_NEW;
+?>
+
+<?php if ($block->canUpgrade()) : ?>
+    <div class="mpmembership-upgrade-comment">
+        <span><?= $block->escapeHtml(__('To upgrade your membership, click on Upgrade button to view the available membership packages and make purchase with good prices.')) ?></span>
+    </div>
+<?php endif; ?>
+
+<div class="block block-dashboard-membership" id="block-membership">
+    <div class="block-title">
+        <strong><?= $block->escapeHtml(__('Current Membership')) ?></strong>
+    </div>
+    <div class="block-content mpcss">
+        <?php if (!empty($membership->getData())) : ?>
+            <div class="col-md-4" id="current-membership">
+                <?php if ($membership->getIsFeatured()) : ?>
+                    <div class="mpmembership-featured">
+                        <img class="mpmembership-featured-img" src="<?= $block->escapeUrl($featured) ?>" alt="featured">
+                        <strong class="mpmembership-featured-text"><?= $membership->getFeaturedLabel() ?: $block->escapeHtml(__('Featured')) ?></strong>
+                    </div>
+                <?php endif; ?>
+                <div class="mpmembership-box">
+                    <div class="mpmembership-title membership-bg-color">
+                        <h3><?= $block->escapeHtml($block->getMembershipName($membership)) ?></h3>
+                    </div>
+                    <?php if ($image = $block->getMembershipImage($membership)) : ?>
+                        <div class="mpmembership-image">
+                            <img src="<?= $block->escapeUrl($image) ?>" alt="image">
+                        </div>
+                    <?php endif; ?>
+                    <div class="mpmembership-features">
+                        <ul>
+                            <?php if ($block->canRenew()) : ?>
+                                <li><strong class="mpmembership-expired"><?= $block->escapeHtml(__('Expired')) ?></strong></li>
+                            <?php else : ?>
+                                <li>
+                                    <strong><?= $block->escapeHtml(__('Expiration Date')) ?></strong>
+                                    <br/>
+                                    <strong><?= $block->escapeHtml($block->getExpiredDate()) ?></strong>
+                                </li>
+                            <?php endif; ?>
+                            <?php foreach ($block->getBenefit($membership) as $item) : ?>
+                                <li><?= /** noEscape */ $item; ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                    <div class="mpmembership-action">
+                        <?php if ($block->canUpgrade()) : ?>
+                            <a href="<?= $block->escapeUrl($block->getUpgradeUrl()) ?>"
+                               class="btn btn-block btn-lg membership-bg-color">
+                                <span><?= $block->escapeHtml(__('Upgrade')) ?></span>
+                            </a>
+                        <?php elseif ($product && $block->canRenew()) : ?>
+                            <form data-role="tocart-form" method="post"
+                                  action="<?= $block->escapeUrl($block->getBuyUrl($membership)) ?>">
+                                <input type="hidden" name="product" value="<?= $block->escapeHtmlAttr($productId) ?>">
+                                <input name="form_key" type="hidden" value="<?= $block->escapeHtmlAttr($formKey) ?>">
+                                <input name="mpmembership_action" type="hidden" value="<?= $block->escapeHtmlAttr($action) ?>">
+
+                                <?php if ($information['isFixedPrice']) : ?>
+                                    <span class="mpmembership-fixed-price"><?= $block->escapeHtml($block->convertPrice($price)) ?></span>
+                                    <br/>
+                                    <span class="mpmembership-fixed-duration"><?= $block->escapeHtml($information['duration']) ?></span>
+                                <?php elseif (count($information['options'])) : ?>
+                                    <label for="mpmembership-product-<?= $block->escapeHtmlAttr($productId) ?>"
+                                           style="display: none"></label>
+                                    <select name="mpmembership_data"
+                                            id="mpmembership-product-<?= $block->escapeHtmlAttr($productId) ?>">
+                                        <?php foreach ($information['options'] as $option) : ?>
+                                            <option value='<?= $block->escapeHtmlAttr($option['record_id']) ?>'>
+                                                <?= $block->escapeHtml($option['label']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                <?php endif; ?>
+
+                                <button type="submit" class="action tocart btn btn-block btn-lg membership-bg-color">
+                                    <span><?= $block->escapeHtml(__('Re-new')) ?></span>
+                                </button>
+                            </form>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php else : ?>
+            <div class="message info empty"><span><?= $block->escapeHtml(__('Your membership is inactive.')) ?></span></div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<style type="text/css">
+    #block-membership .membership-bg-color {
+        background-color: <?= /** noEscape */ $bgColor ?>;
+        color: <?= /** noEscape */ Data::getContrastColor($bgColor) ?>;
+    }
+</style>

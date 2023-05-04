@@ -1,0 +1,82 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+use Mageplaza\Membership\Block\Account\Dashboard\History;
+
+/** @var History $block */
+$collection = $block->getHistory();
+?>
+
+<div class="block block-dashboard-history">
+    <div class="block-title">
+        <strong><?= $block->escapeHtml(__('Transactions')) ?></strong>
+    </div>
+    <div class="block-content">
+        <?php if ($collection->getSize()) : ?>
+            <div class="table-wrapper history-recent">
+                <table class="data table table-history-items">
+                    <caption class="table-caption"><?= $block->escapeHtml(__('Transactions')) ?></caption>
+                    <thead>
+                    <tr>
+                        <th scope="col" class="col id"><?= $block->escapeHtml(__('#')) ?></th>
+                        <th scope="col" class="col created"><?= $block->escapeHtml(__('Purchased Date')) ?></th>
+                        <th scope="col" class="col title"><?= $block->escapeHtml(__('Membership - Product')) ?></th>
+                        <th scope="col" class="col action"><?= $block->escapeHtml(__('Action')) ?></th>
+                        <th scope="col" class="col status"><?= $block->escapeHtml(__('Duration')) ?></th>
+                        <th scope="col" class="col amount"><?= $block->escapeHtml(__('Amount')) ?></th>
+                        <th scope="col" class="col amount"><?= $block->escapeHtml(__('Expiration Date ')) ?></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($collection as $item) : ?>
+                        <tr>
+                            <td data-th="<?= $block->escapeHtmlAttr(__('#')) ?>"
+                                class="col id"><?= $block->escapeHtml($item->getId()) ?></td>
+                            <td data-th="<?= $block->escapeHtmlAttr(__('Purchased Date')) ?>"
+                                class="col created">
+                                <?= /** noEscape */ $block->formatDate(
+                                    $item->getCreatedDate(),
+                                    IntlDateFormatter::MEDIUM
+                                ) ?>
+                            </td>
+                            <td data-th="<?= $block->escapeHtmlAttr(__('Membership - Product')) ?>"
+                                class="col title"><?= /** noEscape */ $block->getMembershipLabel($item) ?></td>
+                            <td data-th="<?= $block->escapeHtmlAttr(__('Action')) ?>"
+                                class="col status"><?= /** noEscape */ $block->getActionLabel($item->getAction()) ?></td>
+                            <td data-th="<?= $block->escapeHtmlAttr(__('Duration')) ?>"
+                                class="col status"><?= /** noEscape */ $block->getDurationLabel($item) ?></td>
+                            <td data-th="<?= $block->escapeHtmlAttr(__('Amount')) ?>"
+                                class="col amount"><?= /** noEscape */ $block->convertPrice($item->getAmount()) ?></td>
+                            <td data-th="<?= $block->escapeHtmlAttr(__('Expired Date')) ?>"
+                                class="col status"><?= /** noEscape */ $block->getExpiredDate($item) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php if ($block->getPagerHtml()) : ?>
+                <div class="history-toolbar toolbar bottom"><?= $block->getPagerHtml(); ?></div>
+            <?php endif ?>
+        <?php else : ?>
+            <div class="message info empty"><span><?= $block->escapeHtml(__('You membership history is empty.')) ?></span></div>
+        <?php endif; ?>
+    </div>
+</div>

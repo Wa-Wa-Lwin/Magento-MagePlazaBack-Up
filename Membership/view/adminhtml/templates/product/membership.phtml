@@ -1,0 +1,52 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+use Magento\Catalog\Helper\Product;
+use Mageplaza\Membership\Block\Product\View;
+
+/** @var View $block */
+$_skipSaleableCheck = $this->helper(Product::class)->getSkipSaleableCheck();
+
+$product = $block->getProduct();
+
+if (!$_skipSaleableCheck && !$product->isSaleable()) {
+    return;
+}
+
+$information = $block->getInformation();
+$productId   = $product->getId();
+?>
+
+<fieldset id="catalog_product_composite_configure_fields_mpmembership" class="fieldset admin__fieldset">
+    <div class="field admin__field _required required">
+        <label class="label admin__field-label" for="mpmembership-duration-custom"><?= $block->escapeHtml(__('Duration')) ?></label>
+        <div class="control admin__field-control">
+            <select name="mpmembership_data" id="mpmembership-data"
+                    class="admin__control-select required-entry super-attribute-select">
+                <?php foreach ($information['options'] as $option) : ?>
+                    <option value="<?= $block->escapeHtmlAttr($option['record_id']) ?>">
+                        <?= $block->escapeHtml($option['label']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    </div>
+</fieldset>

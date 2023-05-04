@@ -1,0 +1,49 @@
+<?xml version="1.0"?><!--
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\Pool">
+        <arguments>
+            <argument name="modifiers" xsi:type="array">
+                <item name="mpmembership" xsi:type="array">
+                    <item name="class" xsi:type="string">Mageplaza\Membership\Ui\Component\DataProvider\Product\Modifier\Membership</item>
+                    <item name="sortOrder" xsi:type="number">20</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Customer\Ui\Component\DataProvider">
+        <plugin name="mpmembership_modify_customer_grid" type="Mageplaza\Membership\Plugin\Ui\Customer\DataProvider"/>
+    </type>
+    <type name="Magento\Customer\Model\Customer\DataProvider">
+        <plugin name="mpmembership_modify_customer_form" type="Mageplaza\Membership\Plugin\Model\Customer\DataProvider"/>
+    </type>
+    <type name="Magento\Customer\Model\Customer\DataProviderWithDefaultAddresses">
+        <plugin name="mpmembership_modify_customer_form" type="Mageplaza\Membership\Plugin\Model\Customer\DataProviderWithDefaultAddresses"/>
+    </type>
+    <type name="Magento\Catalog\Ui\DataProvider\Product\ProductDataProvider">
+        <plugin name="mpmembership_modify_product_grid" type="Mageplaza\Membership\Plugin\Ui\Catalog\ProductDataProvider"/>
+    </type>
+
+    <type name="Magento\Sales\Block\Adminhtml\Order\Create\Items\Grid">
+        <plugin name="mpmembership_add_custom_option_in_order_create" type="Mageplaza\Membership\Plugin\Block\Order\Create\ItemsGrid"/>
+    </type>
+</config>

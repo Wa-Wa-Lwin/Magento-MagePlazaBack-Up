@@ -1,0 +1,39 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+use Mageplaza\Membership\Block\Adminhtml\Customer\Edit\Membership;
+
+/** @var $block Membership */
+$data = $block->getCustomerData();
+
+if (empty($data)) {
+    return;
+}
+?>
+
+<tr>
+    <th><?= $block->escapeHtml(__('Membership Name:')) ?></th>
+    <td><?= $block->escapeHtml($data['name']) ?></td>
+</tr>
+<tr>
+    <th><?= $block->escapeHtml(__('Membership Expiration Date:')) ?></th>
+    <td><?= $block->escapeHtml($data['end']) ?></td>
+</tr>

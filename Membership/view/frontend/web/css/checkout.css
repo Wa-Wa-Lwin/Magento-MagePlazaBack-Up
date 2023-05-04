@@ -1,0 +1,41 @@
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+.mpmembership-duration-block {
+    padding-left: 88px;
+}
+
+@media all and (max-width: 768px), print {
+    .mpmembership-duration-block {
+        padding-left: 13px;
+    }
+}
+
+.a-left.product.mpmembership-duration-block {
+    padding-left: 10px;
+}
+
+.product-item-detail .product.options {
+    margin-bottom: 10px;
+}
+
+.product-item-details .product.options {
+    margin-bottom: 5px;
+}

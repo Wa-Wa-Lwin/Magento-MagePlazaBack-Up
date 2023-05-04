@@ -1,0 +1,30 @@
+<?xml version="1.0"?><!--
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Mageplaza_Membership::mpmembership" title="Membership" module="Mageplaza_Membership" sortOrder="110" resource="Mageplaza_Membership::mpmembership" parent="Magento_Backend::marketing"/>
+        <add id="Mageplaza_Membership::membership" title="Manage Membership" module="Mageplaza_Membership" sortOrder="10" action="mpmembership/membership" resource="Mageplaza_Membership::membership" parent="Mageplaza_Membership::mpmembership"/>
+        <add id="Mageplaza_Membership::member" title="Manage Members" module="Mageplaza_Membership" sortOrder="20" action="mpmembership/member" resource="Mageplaza_Membership::member" parent="Mageplaza_Membership::mpmembership"/>
+        <add id="Mageplaza_Membership::history" title="Transactions" module="Mageplaza_Membership" sortOrder="30" action="mpmembership/history" resource="Mageplaza_Membership::history" parent="Mageplaza_Membership::mpmembership"/>
+        <add id="Mageplaza_Membership::configuration" title="Configuration" module="Mageplaza_Membership" sortOrder="1000" action="adminhtml/system_config/edit/section/mpmembership" resource="Mageplaza_Membership::configuration" parent="Mageplaza_Membership::mpmembership"/>
+    </menu>
+</config>

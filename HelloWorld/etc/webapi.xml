@@ -1,0 +1,104 @@
+<?xml version="1.0" ?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+	
+	<route method="GET" url="/V1/wishlist/post/:customerId">
+		<service class="Mageplaza\HelloWorld\Api\PostManagementInterface" method="getWishlistForCustomer"/>
+		<resources>
+			<resource ref="self"/>
+		</resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+
+    <route method="GET" url="/V1/wishlist/list/">
+		<service class="Mageplaza\HelloWorld\Api\PostManagementInterface" method="getWishlistDetailForCustomer"/>
+		<resources>
+			<resource ref="self"/>
+		</resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+
+	<route method="GET" url="/V1/wishlist/:wishlistItemId">
+		<service class="Mageplaza\HelloWorld\Api\PostManagementInterface" method="getWishlistDetails"/>
+		<resources>
+			<resource ref="self"/>
+		</resources>
+		<data>
+			<parameter name="customerId" force="true">%customer_id%</parameter>
+		</data>
+	</route>
+
+    <route url="/V1/wishlist/add/:productId/:qty" method="POST">
+        <service class="Mageplaza\HelloWorld\Api\PostManagementInterface" method="addWishlistForCustomer"/>
+    	<resources>
+            <resource ref="self" />
+        </resources>
+        <data>
+        	<parameter name="customerId" force="true">%customer_id%</parameter>
+    	</data>
+    </route>   
+
+	<route method="DELETE" url="/V1/wishlist/:wishlistItemId">
+		<service class="Mageplaza\HelloWorld\Api\PostManagementInterface" method="deleteWishlistForCustomer"/>
+		<resources>
+			<resource ref="self"/>
+		</resources>
+        <data>
+    		<parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+
+	<route method="POST" url="/V1/wishlist/addtocart/:wishlistItemId">
+		<service class="Mageplaza\HelloWorld\Api\PostManagementInterface" method="addWishlistToCart"/>
+		<resources>
+			<resource ref="self"/>
+		</resources>
+		<data>
+			<parameter name="customerId" force="true">%customer_id%</parameter>
+		</data>
+	</route>
+	
+	<route method="POST" url="/V1/wishlist/addtocart/">
+		<service class="Mageplaza\HelloWorld\Api\PostManagementInterface" method="addAllWishlistToCart"/>
+		<resources>
+			<resource ref="self"/>
+		</resources>        
+        <data>
+			<parameter name="customerId" force="true">%customer_id%</parameter>
+        </data> 
+    </route>
+
+	<route url="/V1/wishlist/:wishlistItemId" method="PUT">
+		<service class="Mageplaza\HelloWorld\Api\PostManagementInterface" method="updateWishlistForCustomer"/>
+		<resources>
+			<resource ref="self" />
+		</resources>
+		<data>
+			<parameter name="customerId" force="true">%customer_id%</parameter>
+		</data>
+	</route>
+
+	<route url="/V1/wishlist" method="PUT">
+		<service class="Mageplaza\HelloWorld\Api\PostManagementInterface" method="updateWishlistQty"/>
+		<resources>
+			<resource ref="self" />
+		</resources>
+		<data>
+			<parameter name="customerId" force="true">%customer_id%</parameter>
+		</data>
+	</route>
+
+	<route url="/V1/movetowishlist/:itemId" method="PUT">
+		<service class="Mageplaza\HelloWorld\Api\PostManagementInterface" method="moveToWishlistFromCart"/>
+		<resources>
+			<resource ref="self" />
+		</resources>
+		<data>
+			<parameter name="customerId" force="true">%customer_id%</parameter>
+		</data>
+	</route>
+
+</routes>

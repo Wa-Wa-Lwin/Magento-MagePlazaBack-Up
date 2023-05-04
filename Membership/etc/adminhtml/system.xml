@@ -1,0 +1,91 @@
+<?xml version="1.0"?><!--
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="mpmembership" translate="label" type="text" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Membership</label>
+            <tab>mageplaza</tab>
+            <resource>Mageplaza_Membership::configuration</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Select <b>Yes</b> to enable this module.]]></comment>
+                </field>
+                <field id="default_group" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Default Group</label>
+                    <source_model>Magento\Customer\Model\Config\Source\Group</source_model>
+                    <comment>When the Membership is expired, customer will be moved back to this Default Group.</comment>
+                </field>
+                <field id="allow_override" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Override Membership</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[If <b>No</b>, customers in a certain membership cannot buy products from other membership.]]></comment>
+                </field>
+                <field id="allow_upgrade" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Upgrade Membership</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[If <b>Yes</b>, the current membership can be upgraded when it has not expired yet.]]></comment>
+                </field>
+                <field id="upgrading_cost" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Upgrading Price</label>
+                    <source_model>Mageplaza\Membership\Model\Config\Source\UpgradingCost</source_model>
+                    <depends>
+                        <field id="allow_upgrade">1</field>
+                    </depends>
+                    <comment>If selecting Deducted by Remaining Time, the price of the upgraded package will be deducted based on the remaining time of current package.</comment>
+                </field>
+                <field id="show_on_toplink" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Display on toplink</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[If <b>Yes</b>, Membership Dashboard link will be displayed at the Toplink.]]></comment>
+                </field>
+                <field id="change_membership_when" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Activate Membership When</label>
+                    <source_model>Mageplaza\Membership\Model\Config\Source\ChangeMembership</source_model>
+                </field>
+            </group>
+            <group id="page" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Membership Page</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="page_link_area" translate="label comment" type="multiselect" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Display on</label>
+                    <source_model>Mageplaza\Membership\Model\Config\Source\PageLinkArea</source_model>
+                    <comment>Select the place to display Membership Page link.</comment>
+                </field>
+                <field id="page_route" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Membership Route</label>
+                    <validate>letters-only</validate>
+                    <comment>If empty, the default route "membership" will be used.</comment>
+                </field>
+                <field id="snippet" translate="label comment" type="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Snippet Code</label>
+                    <frontend_model>Mageplaza\Membership\Block\Adminhtml\System\Snippet</frontend_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

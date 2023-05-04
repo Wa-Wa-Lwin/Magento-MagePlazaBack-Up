@@ -1,0 +1,134 @@
+"Waiting For Activation","Waiting For Activation"
+Permanent,Permanent
+"Save and Continue Edit","Save and Continue Edit"
+"Edit Membership #%1","Edit Membership #%1"
+"Create New Membership","Create New Membership"
+"Display Configuration","Display Configuration"
+Image,Image
+"Background Color","Background Color"
+"-- Please select a product --","-- Please select a product --"
+"Default Product","Default Product"
+"Is Featured","Is Featured"
+"Featured Label","Featured Label"
+"The label should not be too long to make sure it will fully appear at the frontend.<br/>If empty, the default label ""Featured"" will be used.","The label should not be too long to make sure it will fully appear at the frontend.<br/>If empty, the default label ""Featured"" will be used."
+"Sort Order","Sort Order"
+"Default is 0. The one with the smallest order will display first.","Default is 0. The one with the smallest order will display first."
+ID,ID
+Customer,Customer
+Action,Action
+Amount,Amount
+Duration,Duration
+"Purchased Date","Purchased Date"
+"Activation Date","Activation Date"
+General,General
+"Customer Group","Customer Group"
+Status,Status
+Level,Level
+"The membership packages with the higher levels than customers' current ones will be suggested to upgrade.","The membership packages with the higher levels than customers' current ones will be suggested to upgrade."
+"Default Duration","Default Duration"
+"Duration No.","Duration No."
+"Expiration Date","Expiration Date"
+"Membership Information","Membership Information"
+Display,Display
+Members,Members
+History,History
+"Use the following code to display Membership link at any places you want.","Use the following code to display Membership link at any places you want."
+"CMS Page, CMS Static Block","CMS Page, CMS Static Block"
+"XML File, XML Data","XML File, XML Data"
+"Template .phtml file","Template .phtml file"
+Membership,Membership
+Transactions,Transactions
+"This membership no longer exists.","This membership no longer exists."
+"Manage Membership","Manage Membership"
+"Please correct the data sent.","Please correct the data sent."
+"Something went wrong while saving the membership.","Something went wrong while saving the membership."
+"Something went wrong while updating the record(s) status.","Something went wrong while updating the record(s) status."
+"A total of %1 record(s) have been updated.","A total of %1 record(s) have been updated."
+"The value of Admin scope can't be empty in Benefit(s).","The value of Admin scope can't be empty in Benefit(s)."
+"The membership has been saved.","The membership has been saved."
+"Membership is turned off.","Membership is turned off."
+"Membership Page","Membership Page"
+"Cannot upgrade membership.","Cannot upgrade membership."
+"Upgrade Your Membership","Upgrade Your Membership"
+"Please setup duration options.","Please setup duration options."
+"Invalid duration value.","Invalid duration value."
+"Invoice Created","Invoice Created"
+"Order Completed","Order Completed"
+" "," "
+Inactive,Inactive
+Active,Active
+Expired,Expired
+Day(s),Day(s)
+Month(s),Month(s)
+Year(s),Year(s)
+Default,Default
+Custom,Custom
+Price,Price
+"Duration Options","Duration Options"
+"Buy New","Buy New"
+Upgrade,Upgrade
+Re-new,Re-new
+"-- Please select an option --","-- Please select an option --"
+Menu,Menu
+"Footer Links","Footer Links"
+"Full Price","Full Price"
+"Deducted by Remaining Time","Deducted by Remaining Time"
+"The module is disabled","The module is disabled"
+"Membership doesn't exist","Membership doesn't exist"
+"Please login account before place order","Please login account before place order"
+"Cannot buy membership products. Customer already has a membership.","Cannot buy membership products. Customer already has a membership."
+"Your cart already contains a membership product.","Your cart already contains a membership product."
+"Duration is incorrect. Please choose your duration again","Duration is incorrect. Please choose your duration again"
+"Please buy one membership product only.","Please buy one membership product only."
+"Duration: ","Duration: "
+Benefits,Benefits
+"Cannot change membership of this product since it is used for default product option.","Cannot change membership of this product since it is used for default product option."
+No.,No.
+"Membership Name:","Membership Name:"
+"Membership Expiration Date:","Membership Expiration Date:"
+Benefit(s),Benefit(s)
+"Add Option","Add Option"
+"Sort Option","Sort Option"
+Delete,Delete
+"The value of Admin must be unique.","The value of Admin must be unique."
+"Membership Name","Membership Name"
+#,#
+"Membership - Product","Membership - Product"
+"Expiration Date ","Expiration Date "
+"Expired Date","Expired Date"
+"You membership history is empty.","You membership history is empty."
+"To upgrade your membership, click on Upgrade button to view the available membership packages and make purchase with good prices.","To upgrade your membership, click on Upgrade button to view the available membership packages and make purchase with good prices."
+"Current Membership","Current Membership"
+Featured,Featured
+"Your membership is inactive.","Your membership is inactive."
+"No memberships available.","No memberships available."
+"Choose package","Choose package"
+"Out of stock","Out of stock"
+"Manage Members","Manage Members"
+Enable,Enable
+"Select <b>Yes</b> to enable this module.","Select <b>Yes</b> to enable this module."
+"Default Group","Default Group"
+"When the Membership is expired, customer will be moved back to this Default Group.","When the Membership is expired, customer will be moved back to this Default Group."
+"Override Membership","Override Membership"
+"If <b>No</b>, customers in a certain membership cannot buy products from other membership.","If <b>No</b>, customers in a certain membership cannot buy products from other membership."
+"Upgrade Membership","Upgrade Membership"
+"If <b>Yes</b>, the current membership can be upgraded when it has not expired yet.","If <b>Yes</b>, the current membership can be upgraded when it has not expired yet."
+"Upgrading Price","Upgrading Price"
+"If selecting Deducted by Remaining Time, the price of the upgraded package will be deducted based on the remaining time of current package.","If selecting Deducted by Remaining Time, the price of the upgraded package will be deducted based on the remaining time of current package."
+"Display on toplink","Display on toplink"
+"If <b>Yes</b>, Membership Dashboard link will be displayed at the Toplink.","If <b>Yes</b>, Membership Dashboard link will be displayed at the Toplink."
+"Activate Membership When","Activate Membership When"
+"Display on","Display on"
+"Select the place to display Membership Page link.","Select the place to display Membership Page link."
+"Membership Route","Membership Route"
+"If empty, the default route ""membership"" will be used.","If empty, the default route ""membership"" will be used."
+"Snippet Code","Snippet Code"
+"Membership Expiration Date","Membership Expiration Date"
+"Purchase Date","Purchase Date"
+"All Store Views","All Store Views"
+"Store View","Store View"
+"Change Status","Change Status"
+"No. Member","No. Member"
+"Created At","Created At"
+"Updated At","Updated At"
+Edit,Edit

@@ -1,0 +1,140 @@
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+#current-membership {
+    margin: 0 -15px;
+}
+
+.mpmembership-box {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    border: 1px solid rgba(0, 0, 0, 0.075);
+    border-radius: 5px;
+    text-align: center;
+    background-color: #F5F5F5;
+    padding: 5px;
+}
+
+.mpmembership-title {
+    padding: 10px 20px;
+}
+
+.mpmembership-title h3 {
+    margin-top: 10px;
+    padding: 12px;
+    font-weight: bold;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.mpmembership-image img {
+    width: 100%;
+}
+
+.mpmembership-price {
+    color: #333;
+    padding: 20px;
+    font-size: 36px;
+}
+
+.mpmembership-features {
+    padding: 0 20px;
+}
+
+.mpmembership-features ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mpmembership-features ul > li {
+    margin-top: 1rem;
+}
+
+.mpmembership-box .mpmembership-action > * {
+    width: auto;
+    margin: 15px;
+}
+
+.mpmembership-image, .mpmembership-price, .mpmembership-features {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.075);
+}
+
+.block-dashboard-history .toolbar-amount {
+    position: relative;
+}
+
+.mpmembership-featured {
+    top: 0;
+    right: 15px;
+    position: absolute;
+}
+
+.mpmembership-featured-text {
+    transform: translateX(-50%) translateY(-50%) rotate(42deg);
+    top: 32%;
+    left: 66%;
+    position: absolute;
+    color: #fff;
+    max-width: 100px;
+    white-space: pre;
+    overflow: hidden;
+}
+
+.mpmembership-action button, .mpmembership-action .stock.unavailable {
+    box-shadow: none;
+    margin: 20px auto 0;
+}
+
+.mpmembership-action .btn {
+    background-color: #eee;
+    height: 100%;
+    width: 60%;
+    font-weight: 600;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mpmembership-expired {
+    color: #e22626;
+}
+
+.mpmembership-upgrade-comment {
+    background-color: #D9EDF7;
+    border-radius: 5px;
+    color: #3A87AD;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    margin-top: -20px;
+}
+
+.mpmembership-fixed-price {
+    font-weight: 600;
+    font-size: 30px;
+    line-height: 1;
+}
+
+.mpmembership-fixed-duration {
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1;
+}

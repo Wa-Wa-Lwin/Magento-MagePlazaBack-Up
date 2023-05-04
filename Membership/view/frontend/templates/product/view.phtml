@@ -1,0 +1,80 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+use Mageplaza\Membership\Block\Product\View;
+
+/* @var View $block */
+$information = $block->getInformation();
+$productId   = $block->getProduct()->getId();
+?>
+
+<div id="mpmembership-container">
+    <?php if ($information['isFixedPrice']) : ?>
+        <div id="mpmembership-duration-fixed">
+            <h2 class="mpmembership-duration-no"><?= $block->escapeHtml(__('Duration') . ' ' . $information['duration']) ?></h2>
+        </div>
+    <?php else : ?>
+        <label for="mpmembership-duration-custom"></label>
+
+        <select name="mpmembership_duration_custom" id="mpmembership-duration-custom">
+            <?php foreach ($information['options'] as $option) : ?>
+                <option value="<?= $block->escapeHtmlAttr($option['record_id']) ?>" data-duration='<?= $block->escapeHtmlAttr($option['data']) ?>'>
+                    <?= $block->escapeHtml($option['label']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+
+    <input type="hidden" name="mpmembership_data" id="mpmembership-data-<?= $block->escapeHtmlAttr($productId) ?>"/>
+
+        <script type="text/javascript">
+            require(['jquery'], function ($) {
+                var elem      = $('#mpmembership-duration-custom'),
+                    productId = '<?= $block->escapeHtml($productId) ?>';
+
+                elem.on('change', function () {
+                    var data = JSON.parse($(this).children(':selected').attr('data-duration'));
+
+                    $('#product-price-' + productId).find('.price').text(data.formattedPrice);
+                    $('#mpmembership-data-' + productId).val(data.record_id);
+
+                    $('[data-role=priceBox]').trigger('updatePrice');
+                });
+
+                elem.trigger('change');
+            });
+        </script>
+    <?php endif; ?>
+</div>
+
+<style type="text/css">
+    #qty, .qty {
+        display: none;
+    }
+
+     .field.qty {
+        display: none !important;
+    }
+    .mpmembership-product-benefit ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+</style>

@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/mpMemberships" method="GET">
+        <service class="Mageplaza\Membership\Api\MembershipRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="Mageplaza_Membership::membership"/>
+        </resources>
+    </route>
+    <route url="/V1/mpMembership/page" method="GET">
+        <service class="Mageplaza\Membership\Api\MembershipRepositoryInterface" method="getMembershipPage"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <route url="/V1/mpMembership/mine/upgrade-page" method="GET">
+        <service class="Mageplaza\Membership\Api\MembershipRepositoryInterface" method="getUpgradePage"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/mpMemberships/mine" method="GET">
+        <service class="Mageplaza\Membership\Api\MembershipRepositoryInterface" method="getCurrentMembership"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/mpMemberships/members" method="GET">
+        <service class="Mageplaza\Membership\Api\CustomerRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="Mageplaza_Membership::member"/>
+        </resources>
+    </route>
+    <route url="/V1/mpMemberships/transactions" method="GET">
+        <service class="Mageplaza\Membership\Api\HistoryRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="Mageplaza_Membership::history"/>
+        </resources>
+    </route>
+    <route url="/V1/mpMemberships/mine/transactions" method="GET">
+        <service class="Mageplaza\Membership\Api\HistoryRepositoryInterface" method="getListByCustomerId"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+</routes>

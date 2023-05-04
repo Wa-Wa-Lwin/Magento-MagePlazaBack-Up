@@ -1,0 +1,44 @@
+<?xml version="1.0"?><!--
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Mageplaza_Membership::css/form.css"/>
+        <script src="Mageplaza_Core::js/jscolor.min.js"/>
+    </head>
+    <body>
+        <referenceContainer name="left">
+            <block class="Mageplaza\Membership\Block\Adminhtml\Membership\Edit\Tabs" name="mpmembership_membership_edit_tabs">
+                <block class="Mageplaza\Membership\Block\Adminhtml\Membership\Edit\Tab\Main" name="mpmembership_membership_edit_tabs.main" as="main"/>
+                <container name="mpmembership_membership_edit_tabs.display" as="display">
+                    <block class="Mageplaza\Membership\Block\Adminhtml\Membership\Edit\Options\Labels" name="display.labels" as="labels"/>
+                    <block class="Mageplaza\Membership\Block\Adminhtml\Membership\Edit\Tab\Front" name="display.front" as="front"/>
+                    <block class="Mageplaza\Membership\Block\Adminhtml\Membership\Edit\Options\Benefit" name="display.benefit" as="options"/>
+                </container>
+                <block class="Mageplaza\Membership\Block\Adminhtml\Membership\Edit\Tab\Member" name="mpmembership_membership_edit_tabs.member" as="member"/>
+                <block class="Mageplaza\Membership\Block\Adminhtml\Membership\Edit\Tab\History" name="mpmembership_membership_edit_tabs.history" as="history"/>
+            </block>
+        </referenceContainer>
+        <referenceContainer name="content">
+            <block class="Mageplaza\Membership\Block\Adminhtml\Membership\Edit" name="mpmembership_membership_edit_content"/>
+        </referenceContainer>
+    </body>
+</page>

@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Mageplaza\HelloWorld\Api\PostManagementInterface" type="Mageplaza\HelloWorld\Model\Api\Wishlist" />
+    <preference for="Mageplaza\HelloWorld\Api\Data\WishlistManagementInterface" type="Mageplaza\HelloWorld\Model\Wishlist" />
+    <preference for="Mageplaza\HelloWorld\Api\Data\CustomWishlistInterface" type="Mageplaza\HelloWorld\Model\CustomWishlist" />
+</config>

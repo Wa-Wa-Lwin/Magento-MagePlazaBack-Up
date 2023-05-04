@@ -1,0 +1,64 @@
+<?php
+/**
+ * Mageplaza
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Mageplaza.com license that is
+ * available through the world-wide-web at this URL:
+ * https://www.mageplaza.com/LICENSE.txt
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this extension to newer
+ * version in the future.
+ *
+ * @category    Mageplaza
+ * @package     Mageplaza_Membership
+ * @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+ * @license     https://www.mageplaza.com/LICENSE.txt
+ */
+
+use Mageplaza\Membership\Block\Product\Listing;
+
+/** @var $block Listing */
+$_product  = $block->getProduct();
+$productId = $_product->getId();
+$duration  = $block->getDurationData();
+?>
+
+<div class="mpmembership-container product-<?= $block->escapeHtmlAttr($productId) ?>">
+    <?php if ($block->isFixedType()) : ?>
+        <p><?= $block->escapeHtml(__('Duration')) . ' ' . $block->escapeHtml($block->getDurationText($duration)) ?></p>
+        <script type="text/javascript">
+            require(['jquery'], function ($) {
+                var elem = $('.mpmembership-container.product-<?= $block->escapeHtmlAttr($productId) ?>'),
+                    data = '<?= /** noEscape */ $duration ?>';
+
+                elem.parents('.product-item-info').find('.mpmembership-data').val(data);
+            });
+        </script>
+    <?php else : ?>
+        <label for="mpmembership-product-<?= $block->escapeHtmlAttr($productId) ?>"></label>
+
+        <select name="mpmembership_duration_custom" id="mpmembership-product-<?= $block->escapeHtmlAttr($productId) ?>">
+            <?php foreach ($block->getDurationOptions() as $option) : ?>
+                <option value="<?= $block->escapeHtmlAttr($option['record_id']) ?>">
+                    <?= $block->escapeHtml($option['label']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+
+        <script type="text/javascript">
+            require(['jquery'], function ($) {
+                var elem = $('#mpmembership-product-<?= $block->escapeHtmlAttr($productId) ?>');
+
+                elem.on('change', function () {
+                    $(this).parents('.product-item-info').find('.mpmembership-data').val($(this).val());
+                });
+
+                elem.trigger('change');
+            });
+        </script>
+    <?php endif; ?>
+</div>
