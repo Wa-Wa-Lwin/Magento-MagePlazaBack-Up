@@ -229,36 +229,54 @@ class AutoRelatedRepository implements AutoRelatedRepositoryInterface
         $searchResult->setItems($result);
         $searchResult->setSearchCriteria($searchCriteria);
 
-        // $searchResult->setTotalCount($collection->getSize()); This makes "total_count": 1
+        if ($rule->getLimitNumber() < 1) {
 
-        if ($data['type'] == Type::TYPE_PAGE_PRODUCT) {
-            foreach ($searchCriteria->getFilterGroups() as $filters) {
-                foreach ($filters->getFilters() as $filter) {
-                    if ($filter->getField() == Rule::RULE_ID) {
-
-                        if ($rule->getLimitNumber() < 1) {
-
-                            $productCollection = $rule->getProductCollection();
-                            $productCollection->addIdFilter($productIds);
-                            //$searchResult->setTotalCount(count($productIds)); this also works! 
-                            $searchResult->setTotalCount($productCollection->getSize());
-
-                        } else {
-                            $searchResult->setTotalCount($rule->getLimitNumber());
-                            break;
-                        }
-                    }
-                }
-            }
+            $productCollection = $rule->getProductCollection();
+            $productCollection->addIdFilter($productIds);
+            $this->productCollectionProcessor->process($productSearchCriteria, $productCollection);
+            $productCollection = $this->ruleHelper->sortProduct($rule, $productCollection);
+            // if ($productCollection->getSize()) {
+            //     $productCollection->setPageSize($rule->getLimitNumber());
+            //     $rule->setMatchingProducts($productCollection->getItems());
+            // } else {
+            //     $rule->setMatchingProducts([]);
+            // }
+            $searchResult->setTotalCount($productCollection->getSize());
+            //$searchResult->setTotalCount($productCollection->getSize());
+        } else {
+            $searchResult->setTotalCount($rule->getLimitNumber()); 
         }
+
+        // if ($rule->getLimitNumber() < 1) {
+        //     $productCollection = $rule->getProductCollection();
+        //     $productCollection->addIdFilter($productIds);
+        //    // $searchResult->setTotalCount(count($productIds)); // this also works! 
+        //     $searchResult->setTotalCount($productCollection->getSize());
+        // } else {
+        //     $searchResult->setTotalCount($rule->getLimitNumber()); 
+        // }
+
+        // if ($data['type'] == Type::TYPE_PAGE_PRODUCT) {
+        //     foreach ($searchCriteria->getFilterGroups() as $filters) {
+        //         foreach ($filters->getFilters() as $filter) {
+        //             if ($filter->getField() == Rule::RULE_ID) {
+
+        //                 if ($rule->getLimitNumber() < 1) {
+        //                     $productCollection = $rule->getProductCollection();
+        //                     $productCollection->addIdFilter($productIds);
+        //                     $searchResult->setTotalCount(count($productIds)+1); // this also works! 
+        //                     //$searchResult->setTotalCount($productCollection->getSize());
+        //                 } else {
+        //                     $searchResult->setTotalCount($rule->getLimitNumber());
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         return $searchResult;
     }
-
-    //$testing=$searchResult->setItems($result); 
-
-    //$testing=$searchResult->setItems($result);                     
-    //$searchResult->setTotalCount(count($testing));
 
 
     /**

@@ -5,16 +5,14 @@ namespace Mageplaza\HelloWorld\Model\Api;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductAttributeRepositoryInterface;
-
+use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\ConfigurableProduct\Model\Quote\Item\ConfigurableItemOptionValueFactory;
-// 
-use Magento\Framework\Api\SearchCriteriaInterface;
-
+use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Api\FilterBuilder;
-use Magento\Framework\Api\Search\FilterGroupBuilder;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-
+use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Framework\Api\Search\FilterGroupBuilder;
 use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\DataObjectFactory;
@@ -25,11 +23,15 @@ use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Model\Quote\ItemFactory as QuoteItemFactory;
 use Magento\Quote\Model\Quote\ProductOptionFactory;
 use Magento\Quote\Model\ResourceModel\Quote\Item\CollectionFactory;
+use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Wishlist\Model\ItemFactory;
 use Magento\Wishlist\Model\ResourceModel\Item\CollectionFactory as ItemCollectionFactory;
-//
+use Magento\Wishlist\Model\WishlistFactory;
 use Mageplaza\HelloWorld\Api\Data\WishlistManagementInterfaceFactory;
 use Mageplaza\HelloWorld\Api\PostManagementInterface;
+use Magento\Quote\Model\Quote\Item\Repository;
+use Mageplaza\Productslider\Helper\Data;
+use MIT\Product\Api\CustomProductInterface;
 use MIT\Product\Api\Data\CustomProductSearchResultsInterfaceFactory;
 use MIT\Product\Model\Api\CustomProductFactory as CustomProductApiFactory;
 use MIT\Product\Model\CustomProductFactory;
@@ -45,39 +47,14 @@ class Wishlist implements PostManagementInterface
     protected $storeManager;
 
     /**
-     * @var \Magento\Wishlist\Model\WishlistFactory
-     */
-    protected $wishlistRepository;
-
-    /**
      * @var \MIT\Product\Api\CustomProductInterface
      */
     protected $customProduct;
 
     /**
-     * @var SearchCriteriaBuilder
-     */
-    private $_searchCriteriaBuilder;
-
-    /**
-     * @var FilterGroupBuilder
-     */
-    private $_filterGroupBuilder;
-
-    /**
-     * @var FilterBuilder
-     */
-    private $_filterBuilder;
-
-    /**
      * @var CustomProductFactory
      */
     protected $customProductFactory;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     /**
      * @var \Magento\Quote\Model\QuoteFactory
@@ -89,7 +66,10 @@ class Wishlist implements PostManagementInterface
      */
     protected $quoteRepository;
 
-
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * @var \Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable
@@ -166,11 +146,15 @@ class Wishlist implements PostManagementInterface
      */
     private $productOptionFactory;
 
-
     /**
      * @var StockRegistryInterface
      */
     private $stockRegistryInterface;
+
+    /**
+     * @var Repository
+     */
+    private $quoteItemRepository;
 
     public function __construct(
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
@@ -212,8 +196,8 @@ class Wishlist implements PostManagementInterface
         ConfigurableItemOptionValueFactory $configurableItemOptionValueFactory,
         ProductOptionFactory $productOptionFactory,
         StockRegistryInterface $stockRegistryInterface,
-        JsonFactory $resultJsonFactory
-
+        JsonFactory $resultJsonFactory,
+        Repository $quoteItemRepository
     ) {
         $this->_productFactory = $productFactory;
         $this->quoteFactory = $quoteFactory;
@@ -230,7 +214,6 @@ class Wishlist implements PostManagementInterface
         $this->resultJsonFactory = $resultJsonFactory;
         $this->cart = $cart;
         $this->messageManager = $messageManager;
-        $this->wishlistRepository = $wishlistRepository;
         $this->storeManager = $storeManager;
         $this->_customerRepositoryInterface = $customerRepositoryInterface;
         $this->quoteModel = $quoteModel;
@@ -256,63 +239,8 @@ class Wishlist implements PostManagementInterface
         $this->configurableItemOptionValueFactory = $configurableItemOptionValueFactory;
         $this->productOptionFactory = $productOptionFactory;
         $this->stockRegistryInterface = $stockRegistryInterface;
+        $this->quoteItemRepository = $quoteItemRepository;
     }
-
-    /**
-     * get wishlist details for customer
-     * @param string $customerId
-     * @param string $wishlistItemId
-     * @return \MIT\Product\Api\Data\CustomProductManagementInterface
-     */
-    public function getWishlistDetails($customerId, $wishlistItemId)
-    {
-        $storeId = $this->storeManager->getStore()->getId();
-
-        $collection = $this->itemCollectionFactory->create();
-        $collection->addFieldToSelect('qty');
-        $collection->getSelect()->joinInner('wishlist', 'wishlist.wishlist_id = main_table.wishlist_id', 'customer_id');
-        $collection->getSelect()->joinInner('wishlist_item_option', 'wishlist_item_option.wishlist_item_id = main_table.wishlist_item_id', ['value', 'code', 'product_id', 'wishlist_item_id']);
-        $collection->getSelect()->joinInner('wishlist_item', 'wishlist_item.wishlist_item_id = main_table.wishlist_item_id', ['product_id', 'qty']);
-        $collection->getSelect()->where('wishlist.customer_id = ? ', $customerId)
-            ->where('wishlist_item.wishlist_item_id = ? ', $wishlistItemId)
-            ->where('wishlist_item_option.code = ? ', 'info_buyRequest')
-            ->where('main_table.store_id = ? ', $storeId);
-
-        if ($collection->getFirstItem()->getId() == null) {
-            throw new NoSuchEntityException(__('The wishlist item that was requested doesn\'t exist. Verify the wishlist item and try again.', $wishlistItemId));
-        }
-
-        foreach ($collection as $item) {
-            $value = json_decode($item['value'], true);
-
-            $productId = $item['product_id'];
-            //////////////////////////////////////
-            $product = $this->customProduct->getProductDetailBySku($productId);
-            $product->setWstomFactory = $this->customProductApiFactory->create();
-            $product->setAverageRating($product->getRatingSummary($product));
-            $product->setWishlistItemId($wishlistItemId);
-            //////////////////////////////////////// 
-
-            if (array_key_exists('super_attribute', $value)) {
-                $attribute = $value['super_attribute'];
-
-                $_configProduct = $this->_productRepository->getById($productId);
-                $childProduct = $this->configurable->getProductByAttributes($attribute, $_configProduct);
-                $childId = $childProduct->getId();
-
-                $product->setSelectedProductId($childId);
-            } else {
-
-                $product->setSelectedProductId($productId);
-            }
-            return $product;
-        }
-    }
-
-
-
-
-
     /**
      * get wishlist list
      * @param string $customerId
@@ -339,6 +267,127 @@ class Wishlist implements PostManagementInterface
         return $wishlistData;
     }
 
+    /**
+     * get wishlist details list for customer
+     * @param string $customerId
+     * @return \MIT\Product\Api\Data\CustomProductSearchResultsInterface
+     */
+    public function getWishlistDetailForCustomer($customerId, SearchCriteriaInterface $searchCriteria)
+    {
+        $searchResult = $this->customProductSearchResultsInterface->create();
+        $searchResult->setSearchCriteria($searchCriteria);
+        $setProduct = [];
+
+        $storeId = $this->storeManager->getStore()->getId();
+
+        $collection = $this->itemCollectionFactory->create();
+        $collection->addFieldToSelect('qty');
+        $collection->getSelect()->joinInner('wishlist', 'wishlist.wishlist_id = main_table.wishlist_id', 'customer_id');
+        $collection->getSelect()->joinInner('wishlist_item_option', 'wishlist_item_option.wishlist_item_id = main_table.wishlist_item_id', ['value', 'code', 'product_id', 'wishlist_item_id']);
+        $collection->getSelect()->where('wishlist.customer_id = ? ', $customerId)
+            // ->where('main_table.product_id IN(?)', $productIds)
+            ->where('wishlist_item_option.code = ? ', 'info_buyRequest')
+            ->where('main_table.store_id = ? ', $storeId);
+        $collection->setPageSize($searchCriteria->getPageSize())
+            ->setCurPage($searchCriteria->getCurrentPage());
+
+        foreach ($collection as $item) {
+            $value = json_decode($item['value'], true);
+            $productId = $item['product_id'];
+            $wishlistItemId = $item['wishlist_item_id'];
+
+            if (array_key_exists('super_attribute', $value)) {
+                $attribute = $value['super_attribute'];
+
+                $_configProduct = $this->_productRepository->getById($productId);
+                $childProduct = $this->configurable->getProductByAttributes($attribute, $_configProduct);
+                $childId = $childProduct->getId();
+
+                $product = $this->customProduct->getProductDetailBySku($productId);
+                $product->setWishlistQty($item['qty']);
+                $customProduct = $this->customProductApiFactory->create();
+                $product->setAverageRating($customProduct->getRatingSummary($product));
+                $product->setWishlistItemId($wishlistItemId);
+                $product->setSelectedProductId($childId);
+                $childConfigProduct = $product->getConfigurableProductList();
+
+                foreach ($childConfigProduct as $child) {
+                    if ($child->getId() == $childId) {
+                        $product->setConfigurableProductList([$child]);
+                    }
+                }
+                $setProduct[] = $product;
+            } else {
+                $product = $this->customProduct->getProductDetailBySku($productId);
+                $product->setWishlistQty($item['qty']);
+                $customFactory = $this->customProductApiFactory->create();
+                $product->setAverageRating($customFactory->getRatingSummary($product));
+                $product->setWishlistItemId($wishlistItemId);
+                $product->setSelectedProductId($productId);
+                $childConfigProduct = $product->getConfigurableProductList();
+
+                foreach ($childConfigProduct as $child) {
+                    $product->setConfigurableProductList([]);
+                }
+                $setProduct[] = $product;
+            }
+        }
+        $searchResult->setItems($setProduct);
+        $searchResult->setTotalCount($this->getWishlistTotalCount($customerId));
+        return $searchResult;
+    }
+
+    /**
+     * get wishlist details for customer
+     * @param string $customerId
+     * @param string $wishlistItemId
+     * @return \MIT\Product\Api\Data\CustomProductManagementInterface
+     */
+    public function getWishlistDetails($customerId, $wishlistItemId)
+    {
+        $storeId = $this->storeManager->getStore()->getId();
+
+        $collection = $this->itemCollectionFactory->create();
+        $collection->addFieldToSelect('qty');
+        $collection->getSelect()->joinInner('wishlist', 'wishlist.wishlist_id = main_table.wishlist_id', 'customer_id');
+        $collection->getSelect()->joinInner('wishlist_item_option', 'wishlist_item_option.wishlist_item_id = main_table.wishlist_item_id', ['value', 'code', 'product_id', 'wishlist_item_id']);
+        $collection->getSelect()->joinInner('wishlist_item', 'wishlist_item.wishlist_item_id = main_table.wishlist_item_id', ['product_id', 'qty']);
+        $collection->getSelect()->where('wishlist.customer_id = ? ', $customerId)
+            ->where('wishlist_item.wishlist_item_id = ? ', $wishlistItemId)
+            ->where('wishlist_item_option.code = ? ', 'info_buyRequest')
+            ->where('main_table.store_id = ? ', $storeId);
+        if ($collection->getSize() == 0) {
+            throw new NoSuchEntityException(__('The wishlist item that was requested doesn\'t exist. Verify the wishlist item and try again.', $wishlistItemId));
+        }
+        foreach ($collection as $item) {
+            $value = json_decode($item['value'], true);
+            $productId = $item['product_id'];
+
+            if (array_key_exists('super_attribute', $value)) {
+                $attribute = $value['super_attribute'];
+
+                $_configProduct = $this->_productRepository->getById($productId);
+                $childProduct = $this->configurable->getProductByAttributes($attribute, $_configProduct);
+                $childId = $childProduct->getId();
+
+                $product = $this->customProduct->getProductDetailBySku($productId);
+                $product->setWishlistQty($item['qty']);
+                $customProduct = $this->customProductApiFactory->create();
+                $product->setAverageRating($customProduct->getRatingSummary($product));
+                $product->setWishlistItemId($wishlistItemId);
+                $product->setSelectedProductId($childId);
+                return $product;
+            } else {
+                $product = $this->customProduct->getProductDetailBySku($productId);
+                $product->setWishlistQty($item['qty']);
+                $customFactory = $this->customProductApiFactory->create();
+                $product->setAverageRating($customFactory->getRatingSummary($product));
+                $product->setWishlistItemId($wishlistItemId);
+                $product->setSelectedProductId($productId);
+                return $product;
+            }
+        }
+    }
 
     /**
      * Add products to wishlist by product id
@@ -710,9 +759,6 @@ class Wishlist implements PostManagementInterface
                 $successMessage[] = "" . $product->getName() . " has been moved to your wish list.";
             }
         }
-        // $quoteItem = $this->quoteItemFactory->create()->load($itemId);
-        // $quoteItem->delete();
-        // $parentQuoteItem->delete();
 
         /** @var \Magento\Quote\Model\Quote $quote */
         $quote = $this->quoteRepository->getActiveForCustomer($customerId);
@@ -728,7 +774,6 @@ class Wishlist implements PostManagementInterface
         } catch (\Exception $e) {
             throw new CouldNotSaveException(__("The item couldn't be removed from the quote."));
         }
-
         return $this->showStatus($customerId, $status, $errorMessage, $successMessage);
     }
 
@@ -851,116 +896,12 @@ class Wishlist implements PostManagementInterface
             $item->setProductOption($productOption);
             // echo ($item->getProductOption()->getExtensionAttributes()->getConfigurableItemOptions()[0]->getOptionId());
         }
-        $quoteItems = $quote->getItems();
-        $quoteItems[] = $item;
-        $quote->setItems($quoteItems);
-        $this->quoteRepository->save($quote);
-        $quote->collectTotals();
+        // $quoteItems = $quote->getItems();
+        // $quoteItems[] = $item;
+        // $quote->setItems($quoteItems);
+        // $this->quoteRepository->save($quote);
+        // $quote->collectTotals();
+        $this->quoteItemRepository->save($item);
         return true;
-    }
-
-    /**
-     * get wishlist details list for customer
-     * @param string $customerId
-     * @return \MIT\Product\Api\Data\CustomProductSearchResultsInterface
-     */
-    public function getWishlistDetailForCustomer($customerId, SearchCriteriaInterface $searchCriteria)
-    {
-        $wishlist = new \Zend_Log_Writer_Stream(BP . '/var/log/wishlist.log');
-        $logger = new \Zend_Log();
-        $logger->addWriter($wishlist);
-        $logger->info("Start");
-
-        $searchResult_start = microtime(true);
-
-        $searchResult = $this->customProductSearchResultsInterface->create();
-        $searchResult->setSearchCriteria($searchCriteria);
-
-        $searchResult_end = microtime(true);
-        $searchResult_time = ($searchResult_end - $searchResult_start)  ; 
-
-        $logger->info($searchResult_time." searchResult customProductSearchResultsInterface");
-
-        $collection_start = microtime(true);
-
-        $storeId = $this->storeManager->getStore()->getId();        
-
-        $collection = $this->itemCollectionFactory->create();
-        $collection->addFieldToSelect('qty');
-        $collection->getSelect()->joinInner('wishlist', 'wishlist.wishlist_id = main_table.wishlist_id', 'customer_id');
-        $collection->getSelect()->joinInner('wishlist_item_option', 'wishlist_item_option.wishlist_item_id = main_table.wishlist_item_id', ['value', 'code', 'product_id', 'wishlist_item_id']);
-        $collection->getSelect()->where('wishlist.customer_id = ? ', $customerId)
-            ->where('wishlist_item_option.code = ? ', 'info_buyRequest')
-            ->where('main_table.store_id = ? ', $storeId);
-        $collection->setPageSize($searchCriteria->getPageSize())
-            ->setCurPage($searchCriteria->getCurrentPage());
-        
-        $collection_end = microtime(true);
-        $collection_time = ($collection_end - $collection_start)  ; 
-        $logger->info($collection_time." collection ");
-
-        $puttingIntoList_start = microtime(true);
-
-        $productIdList = [];
-        $wishlistItemIdList = [];
-
-        $puttingIntoList_end = microtime(true);
-        $puttingIntoList_time = ($puttingIntoList_end - $puttingIntoList_start)  ; 
-        $logger->info($puttingIntoList_time." collection ");
-
-
-        $foreach_start = microtime(true);
-
-        foreach ($collection as $item) {
-            //$value = json_decode($item['value'], true); 
-            $productId = $item['product_id'];
-            $wishlistItemId = $item['wishlist_item_id'];
-            $qty = $item['qty'];
-            $productIdList[] = $item['product_id'];
-
-            $wishlistItemIdList[$productId] = array($wishlistItemId, $qty);
-        }
-
-        $foreach_end = microtime(true);
-        $foreach_time = ($foreach_end - $foreach_start)  ; 
-        $logger->info($foreach_time." foreach_time");
-
-
-        $filter_start = microtime(true);
-
-        $filteredSku = $this->_filterBuilder
-            ->setConditionType('in')
-            ->setField('entity_id')
-            ->setValue($productIdList)
-            ->create();
-
-        $filteredVisibility = $this->_filterBuilder
-            ->setConditionType('eq')
-            ->setField('visibility')
-            ->setValue(4)
-            ->create();
-
-        $filterGroupList = $this->_filterGroupBuilder
-            ->addFilter($filteredSku)
-            ->addFilter($filteredVisibility)
-            ->create();
-
-        $filterGroupList = [];
-
-        $filterGroupList[] = $this->_filterGroupBuilder->addFilter($filteredSku)->create();
-        $filterGroupList[] = $this->_filterGroupBuilder->addFilter($filteredVisibility)->create();
-        $this->_searchCriteriaBuilder->setFilterGroups($filterGroupList)->create();
-        $searchCriteria = $this->_searchCriteriaBuilder
-            ->setFilterGroups($filterGroupList)
-            ->create();
-
-       $customProduct= $this->customProduct->getList($searchCriteria);
-
-        return $customProduct;
-
-        $filter_end = microtime(true);
-        $filter_time = ($filter_end - $filter_start)  ; 
-        $logger->info($filter_time." filter");
-
     }
 }

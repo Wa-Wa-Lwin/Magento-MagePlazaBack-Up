@@ -9,12 +9,10 @@ use Magento\Catalog\Api\ProductAttributeRepositoryInterface;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\ConfigurableProduct\Model\Quote\Item\ConfigurableItemOptionValueFactory;
 // 
-use Magento\Framework\Api\SearchCriteriaInterface;
-
 use Magento\Framework\Api\FilterBuilder;
-use Magento\Framework\Api\Search\FilterGroupBuilder;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-
+use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Framework\Api\Search\FilterGroupBuilder;
 use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\DataObjectFactory;
@@ -45,29 +43,9 @@ class Wishlist implements PostManagementInterface
     protected $storeManager;
 
     /**
-     * @var \Magento\Wishlist\Model\WishlistFactory
-     */
-    protected $wishlistRepository;
-
-    /**
      * @var \MIT\Product\Api\CustomProductInterface
      */
     protected $customProduct;
-
-    /**
-     * @var SearchCriteriaBuilder
-     */
-    private $_searchCriteriaBuilder;
-
-    /**
-     * @var FilterGroupBuilder
-     */
-    private $_filterGroupBuilder;
-
-    /**
-     * @var FilterBuilder
-     */
-    private $_filterBuilder;
 
     /**
      * @var CustomProductFactory
@@ -166,7 +144,6 @@ class Wishlist implements PostManagementInterface
      */
     private $productOptionFactory;
 
-
     /**
      * @var StockRegistryInterface
      */
@@ -230,7 +207,6 @@ class Wishlist implements PostManagementInterface
         $this->resultJsonFactory = $resultJsonFactory;
         $this->cart = $cart;
         $this->messageManager = $messageManager;
-        $this->wishlistRepository = $wishlistRepository;
         $this->storeManager = $storeManager;
         $this->_customerRepositoryInterface = $customerRepositoryInterface;
         $this->quoteModel = $quoteModel;
@@ -311,7 +287,131 @@ class Wishlist implements PostManagementInterface
 
 
 
+    /**
+     * get wishlist details list for customer
+     * @param string $customerId
+     * @return \MIT\Product\Api\Data\CustomProductSearchResultsInterface
+     */
+    public function getWishlistDetailForCustomer($customerId, SearchCriteriaInterface $searchCriteria)
+    {
+        $wishlist = new \Zend_Log_Writer_Stream(BP . '/var/log/wishlist.log');
+        $logger = new \Zend_Log();
+        $logger->addWriter($wishlist);
+        $logger->info("Start");
 
+        $top_start = microtime(true);
+
+        $searchResult = $this->customProductSearchResultsInterface->create();
+        $searchResult->setSearchCriteria($searchCriteria);
+        $setProduct = [];
+
+        $storeId = $this->storeManager->getStore()->getId();
+
+        $collection = $this->itemCollectionFactory->create();
+        $collection->addFieldToSelect('qty');
+        $collection->getSelect()->joinInner('wishlist', 'wishlist.wishlist_id = main_table.wishlist_id', 'customer_id');
+        $collection->getSelect()->joinInner('wishlist_item_option', 'wishlist_item_option.wishlist_item_id = main_table.wishlist_item_id', ['value', 'code', 'product_id', 'wishlist_item_id']);
+        $collection->getSelect()->where('wishlist.customer_id = ? ', $customerId)
+            ->where('wishlist_item_option.code = ? ', 'info_buyRequest')
+            ->where('main_table.store_id = ? ', $storeId);
+        $collection->setPageSize($searchCriteria->getPageSize())
+            ->setCurPage($searchCriteria->getCurrentPage());
+
+        $top_end = microtime(true);
+
+        $top_time = ($top_end - $top_start)  ; // Time in milliseconds
+        $logger->info($top_time." Queries at Top");
+
+        $start = microtime(true);
+
+        foreach ($collection as $item) {
+            $value = json_decode($item['value'], true);
+            $productId = $item['product_id'];
+            $wishlistItemId = $item['wishlist_item_id'];
+
+            $hello3 = microtime(true);
+
+            ///////////////////////////////              
+            $product = $this->customProduct->getProductDetailBySku($productId); 
+            
+            $hello4 = microtime(true);
+            $hello4and3 = ($hello4 - $hello3)  ; // Time in milliseconds
+            $logger->info($hello4and3."for product = this->customProduct->getProductDetailBySku(productId); ");
+
+            $product->setWishlistQty($item['qty']);
+            $product->setAverageRating($this->customProduct->getRatingSummary($product));
+            ///////////////////////////////
+
+            //////////////////////////////////////////////////////////////////
+            // $customProduct = $this->customProductApiFactory->create();
+            // $product = $customProduct->getProductDetailBySku($productId);
+            // $product->setWishlistQty($item['qty']);            
+            // $product->setAverageRating($customProduct->getRatingSummary($product));
+            //////////////////////////////////////////////////////////////////
+            
+            $product->setWishlistItemId($wishlistItemId);
+
+            if (array_key_exists('super_attribute', $value)) {
+                $attribute = $value['super_attribute'];
+
+                //$_configProduct = $this->_productRepository->getById($productId);
+                //$childProduct = $this->configurable->getProductByAttributes($attribute, $_configProduct);
+
+                $childProduct = $this->configurable->getProductByAttributes($attribute, $product);
+                $childId = $childProduct->getId();
+
+                $product->setSelectedProductId($childId);
+                $childConfigProduct = $product->getConfigurableProductList();    
+
+                $config1 = microtime(true);
+
+                foreach ($childConfigProduct as $child) {
+                    if ($child->getId() == $childId) {
+                        $product->setConfigurableProductList([$child]);
+                    }
+                }
+                $setProduct[] = $product;      
+
+                $config2 = microtime(true);
+                $config_time = ($config2 - $config1)  ; // Time in milliseconds
+                $logger->info($config_time . " Configuarable timer for else from if loop");
+
+            } else {
+
+                $product->setSelectedProductId($productId);
+                $childConfigProduct = $product->getConfigurableProductList();
+
+                $simple1 = microtime(true);
+
+                ////////////////////////////////
+                foreach ($childConfigProduct as $child) {
+                    $product->setConfigurableProductList([]);
+                }
+                $setProduct[] = $product;
+                ////////////////////////////////
+
+
+                $simple2 = microtime(true);
+                $simple_time = ($simple2 - $simple1)  ; // Time in milliseconds
+            
+                $logger->info($simple_time . " Simple timer for else from if loop");
+            }
+        }
+
+       
+
+        $searchResult->setItems($setProduct);
+        $searchResult->setTotalCount($this->getWishlistTotalCount($customerId));
+        return $searchResult;
+
+
+        $end = microtime(true);
+        $time = ($end - $start)  ; // Time in milliseconds
+    
+        $logger->info($time."End (Return Excluded not much dif) - Total for all");
+    }
+
+   
 
     /**
      * get wishlist list
@@ -857,110 +957,5 @@ class Wishlist implements PostManagementInterface
         $this->quoteRepository->save($quote);
         $quote->collectTotals();
         return true;
-    }
-
-    /**
-     * get wishlist details list for customer
-     * @param string $customerId
-     * @return \MIT\Product\Api\Data\CustomProductSearchResultsInterface
-     */
-    public function getWishlistDetailForCustomer($customerId, SearchCriteriaInterface $searchCriteria)
-    {
-        $wishlist = new \Zend_Log_Writer_Stream(BP . '/var/log/wishlist.log');
-        $logger = new \Zend_Log();
-        $logger->addWriter($wishlist);
-        $logger->info("Start");
-
-        $searchResult_start = microtime(true);
-
-        $searchResult = $this->customProductSearchResultsInterface->create();
-        $searchResult->setSearchCriteria($searchCriteria);
-
-        $searchResult_end = microtime(true);
-        $searchResult_time = ($searchResult_end - $searchResult_start)  ; 
-
-        $logger->info($searchResult_time." searchResult customProductSearchResultsInterface");
-
-        $collection_start = microtime(true);
-
-        $storeId = $this->storeManager->getStore()->getId();        
-
-        $collection = $this->itemCollectionFactory->create();
-        $collection->addFieldToSelect('qty');
-        $collection->getSelect()->joinInner('wishlist', 'wishlist.wishlist_id = main_table.wishlist_id', 'customer_id');
-        $collection->getSelect()->joinInner('wishlist_item_option', 'wishlist_item_option.wishlist_item_id = main_table.wishlist_item_id', ['value', 'code', 'product_id', 'wishlist_item_id']);
-        $collection->getSelect()->where('wishlist.customer_id = ? ', $customerId)
-            ->where('wishlist_item_option.code = ? ', 'info_buyRequest')
-            ->where('main_table.store_id = ? ', $storeId);
-        $collection->setPageSize($searchCriteria->getPageSize())
-            ->setCurPage($searchCriteria->getCurrentPage());
-        
-        $collection_end = microtime(true);
-        $collection_time = ($collection_end - $collection_start)  ; 
-        $logger->info($collection_time." collection ");
-
-        $puttingIntoList_start = microtime(true);
-
-        $productIdList = [];
-        $wishlistItemIdList = [];
-
-        $puttingIntoList_end = microtime(true);
-        $puttingIntoList_time = ($puttingIntoList_end - $puttingIntoList_start)  ; 
-        $logger->info($puttingIntoList_time." collection ");
-
-
-        $foreach_start = microtime(true);
-
-        foreach ($collection as $item) {
-            //$value = json_decode($item['value'], true); 
-            $productId = $item['product_id'];
-            $wishlistItemId = $item['wishlist_item_id'];
-            $qty = $item['qty'];
-            $productIdList[] = $item['product_id'];
-
-            $wishlistItemIdList[$productId] = array($wishlistItemId, $qty);
-        }
-
-        $foreach_end = microtime(true);
-        $foreach_time = ($foreach_end - $foreach_start)  ; 
-        $logger->info($foreach_time." foreach_time");
-
-
-        $filter_start = microtime(true);
-
-        $filteredSku = $this->_filterBuilder
-            ->setConditionType('in')
-            ->setField('entity_id')
-            ->setValue($productIdList)
-            ->create();
-
-        $filteredVisibility = $this->_filterBuilder
-            ->setConditionType('eq')
-            ->setField('visibility')
-            ->setValue(4)
-            ->create();
-
-        $filterGroupList = $this->_filterGroupBuilder
-            ->addFilter($filteredSku)
-            ->addFilter($filteredVisibility)
-            ->create();
-
-        $filterGroupList = [];
-
-        $filterGroupList[] = $this->_filterGroupBuilder->addFilter($filteredSku)->create();
-        $filterGroupList[] = $this->_filterGroupBuilder->addFilter($filteredVisibility)->create();
-        $this->_searchCriteriaBuilder->setFilterGroups($filterGroupList)->create();
-        $searchCriteria = $this->_searchCriteriaBuilder
-            ->setFilterGroups($filterGroupList)
-            ->create();
-
-       $customProduct= $this->customProduct->getList($searchCriteria);
-
-        return $customProduct;
-
-        $filter_end = microtime(true);
-        $filter_time = ($filter_end - $filter_start)  ; 
-        $logger->info($filter_time." filter");
-
     }
 }

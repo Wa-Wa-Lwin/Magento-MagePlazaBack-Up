@@ -871,19 +871,13 @@ class Wishlist implements PostManagementInterface
         $logger->addWriter($wishlist);
         $logger->info("Start");
 
-        $searchResult_start = microtime(true);
 
         $searchResult = $this->customProductSearchResultsInterface->create();
         $searchResult->setSearchCriteria($searchCriteria);
 
-        $searchResult_end = microtime(true);
-        $searchResult_time = ($searchResult_end - $searchResult_start)  ; 
 
-        $logger->info($searchResult_time." searchResult customProductSearchResultsInterface");
 
-        $collection_start = microtime(true);
-
-        $storeId = $this->storeManager->getStore()->getId();        
+        $storeId = $this->storeManager->getStore()->getId();
 
         $collection = $this->itemCollectionFactory->create();
         $collection->addFieldToSelect('qty');
@@ -894,25 +888,13 @@ class Wishlist implements PostManagementInterface
             ->where('main_table.store_id = ? ', $storeId);
         $collection->setPageSize($searchCriteria->getPageSize())
             ->setCurPage($searchCriteria->getCurrentPage());
-        
-        $collection_end = microtime(true);
-        $collection_time = ($collection_end - $collection_start)  ; 
-        $logger->info($collection_time." collection ");
-
-        $puttingIntoList_start = microtime(true);
 
         $productIdList = [];
         $wishlistItemIdList = [];
 
-        $puttingIntoList_end = microtime(true);
-        $puttingIntoList_time = ($puttingIntoList_end - $puttingIntoList_start)  ; 
-        $logger->info($puttingIntoList_time." collection ");
-
-
-        $foreach_start = microtime(true);
 
         foreach ($collection as $item) {
-            //$value = json_decode($item['value'], true); 
+            $value = json_decode($item['value'], true);
             $productId = $item['product_id'];
             $wishlistItemId = $item['wishlist_item_id'];
             $qty = $item['qty'];
@@ -921,12 +903,6 @@ class Wishlist implements PostManagementInterface
             $wishlistItemIdList[$productId] = array($wishlistItemId, $qty);
         }
 
-        $foreach_end = microtime(true);
-        $foreach_time = ($foreach_end - $foreach_start)  ; 
-        $logger->info($foreach_time." foreach_time");
-
-
-        $filter_start = microtime(true);
 
         $filteredSku = $this->_filterBuilder
             ->setConditionType('in')
@@ -954,13 +930,41 @@ class Wishlist implements PostManagementInterface
             ->setFilterGroups($filterGroupList)
             ->create();
 
-       $customProduct= $this->customProduct->getList($searchCriteria);
+        $productList = $this->customProduct->getList($searchCriteria);
 
-        return $customProduct;
+        if (array_key_exists('super_attribute', $value)) {
+            $attribute = $value['super_attribute'];
+            $product = $productList->getItems();
+            $childProduct = $this->configurable->getProductByAttributes($attribute, $product);
+            $childId = $childProduct->getId();
+            foreach ($product as $productItem) {
+                if ($productItem->getId() == $childId) {
+                    $product->setConfigurableProductList([$productItem]); 
+                }
+            } 
+            $setProduct[] = $product;
+        } 
+        else {
+            $product = $productList->getItems();
+            foreach ($product as $productItem) {
 
-        $filter_end = microtime(true);
-        $filter_time = ($filter_end - $filter_start)  ; 
-        $logger->info($filter_time." filter");
+                $productItemId = $productItem->getId();
+               // $wishlistItemIdList[$productItemId] = array($wishlistItemId, $qty);
 
+                $setWishlistItemId = $wishlistItemIdList[$productItemId][0];
+                $setQty = $wishlistItemIdList[$productItemId][1];
+
+                $productItem->setWishlistItemId($setWishlistItemId);
+                $productItem->setWishlistQty($setQty);
+
+                $setProduct[] = $productItem; 
+               
+            }
+            
+        }
+            
+        $searchResult->setItems($setProduct);
+        $searchResult->setTotalCount($this->getWishlistTotalCount($customerId));
+        return $searchResult;
     }
 }
