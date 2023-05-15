@@ -35,6 +35,10 @@ use Mageplaza\HelloWorld\Api\PostManagementInterface;
 use MIT\Product\Api\Data\CustomProductSearchResultsInterfaceFactory;
 use MIT\Product\Model\Api\CustomProductFactory as CustomProductApiFactory;
 use MIT\Product\Model\CustomProductFactory;
+// use MIT\Product\Api\Data\SimpleProductDataTotalInterfaceFactory; 
+
+use MIT\Product\Model\SimpleProductDataFactory as SimpleProductDataFactory;
+
 use Psr\Log\LoggerInterface;
 
 class Wishlist implements PostManagementInterface
@@ -44,12 +48,12 @@ class Wishlist implements PostManagementInterface
     private $wishlist;
     protected $cart;
     protected $messageManager;
-    protected $storeManager;
+    protected $storeManager; 
 
-    /**
-     * @var \Magento\Framework\App\ResourceConnection
-     */
-    protected $resourceConnection;
+    // /**
+    //  * @var MIT\Product\Api\Data\SimpleProductDataTotalInterfaceFactory
+    //  */
+    // protected $simpleProductDataTotalInterfaceFactory;
 
     /**
      * @var \Magento\Wishlist\Model\WishlistFactory
@@ -177,7 +181,13 @@ class Wishlist implements PostManagementInterface
      */
     private $stockRegistryInterface;
 
+    /**
+     * @var SimpleProductDataFactory
+     */
+    protected $simpleProductDataFactory;
+
     public function __construct(
+        // SimpleProductDataTotalInterfaceFactory // $simpleProductDataTotalInterfaceFactory, 
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         CartRepositoryInterface $quoteRepository,
         QuoteIdMaskFactory $quoteIdMaskFactory,
@@ -218,8 +228,10 @@ class Wishlist implements PostManagementInterface
         ProductOptionFactory $productOptionFactory,
         StockRegistryInterface $stockRegistryInterface,
         JsonFactory $resultJsonFactory,
-        ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection,
+        SimpleProductDataFactory $simpleProductDataFactory
     ) {
+       // $this->_simpleProductDataTotalInterfaceFactory = $simpleProductDataTotalInterfaceFactory; 
         $this->_productFactory = $productFactory;
         $this->quoteFactory = $quoteFactory;
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
@@ -262,6 +274,7 @@ class Wishlist implements PostManagementInterface
         $this->productOptionFactory = $productOptionFactory;
         $this->stockRegistryInterface = $stockRegistryInterface;
         $this->resourceConnection = $resourceConnection;
+        $this->simpleProductDataFactory = $simpleProductDataFactory;
     }
 
     /**
@@ -894,7 +907,7 @@ class Wishlist implements PostManagementInterface
 
         $productIdList = [];
         $wishlistItemIdList = [];
-        $attribute = []; 
+        $attribute = [];
 
         foreach ($collection as $item) {
             $value = json_decode($item['value'], true);
@@ -906,10 +919,9 @@ class Wishlist implements PostManagementInterface
             if (array_key_exists('super_attribute', $value)) {
                 $attribute = $value['super_attribute'];
                 $wishlistItemIdList[$productId] = array($wishlistItemId, $qty, $attribute);
-            }             
-            else {
+            } else {
                 $wishlistItemIdList[$productId] = array($wishlistItemId, $qty);
-            }            
+            } 
         }
 
         $filteredSku = $this->_filterBuilder
@@ -939,13 +951,15 @@ class Wishlist implements PostManagementInterface
             ->create();
 
         $productList = $this->customProduct->getList($searchCriteria);
-        $product = $productList->getItems(); 
-         
+        $product = $productList->getItems();
+
         foreach ($product as $productItem) {
 
             $productItemId = $productItem->getId();
-
+            
             if (count($wishlistItemIdList[$productItemId]) == 3) {
+
+            //if ($productItem->getTypeId() == 'configurable') {
 
                 $setWishlistItemId = $wishlistItemIdList[$productItemId][0];
                 $setQty = $wishlistItemIdList[$productItemId][1];
@@ -954,134 +968,83 @@ class Wishlist implements PostManagementInterface
                 $childProduct = $this->configurable->getProductByAttributes($attribute, $productItem);
                 $childId = $childProduct->getId();
 
-                $logger->info("Start 1");
-                
-                if (isset($childId)){
+              //  $logger->info("Start 1");
 
-                    $logger->info("Start 2");
+                if (isset($childId)) {
 
-                    
-                        $logger->info("Start 3");
-                        $result = array();
-                        
-                        $connection = $this->resourceConnection->getConnection();
-                        
-                        $table1 = $connection->getTableName('catalog_product_entity_int');
-                        $table2 = $connection->getTableName('eav_attribute');
-                        $table3 = $connection->getTableName('eav_attribute_option_value');
-                        
-                        $select = $connection->select()
-                            ->from(array('cp_int1' => $table1), array('entity_id'))
-                            ->join(array('eav1' => $table2), 'cp_int1.attribute_id = eav1.attribute_id', array())
-                            ->join(array('eavo_value1' => $table3), 'cp_int1.value = eavo_value1.option_id', array('color_value' => 'value'))
-                            ->join(array('cp_int2' => $table1), 'cp_int1.entity_id = cp_int2.entity_id', array())
-                            ->join(array('eav2' => $table2), 'cp_int2.attribute_id = eav2.attribute_id', array())
-                            ->join(array('eavo_value2' => $table3), 'cp_int2.value = eavo_value2.option_id', array('size_value' => 'value'))
-                            ->where('eav1.attribute_code = ?', 'color')
-                            ->where('cp_int1.entity_id = ?', $childId)
-                            ->where('eav2.attribute_code = ?', 'size')
-                            ->where('cp_int2.entity_id = ?', $childId);
+                   // $logger->info("Start 2");
+                    $result = array();
 
-                        $testing = $select->__toString(); 
-                        // Model -> custom product mhar implement 
-                        // Custom Product Mngnt Interface mhar define loke Key Set -> definition ll yay 
-                        
+                    $connection = $this->resourceConnection->getConnection();
 
-                        $logger->info($testing);
+                    $table1 = $connection->getTableName('catalog_product_entity_int');
+                    $table2 = $connection->getTableName('eav_attribute');
+                    $table3 = $connection->getTableName('eav_attribute_option_value');
 
-                        $logger->info("Start 4");
-                        
-                        $rows = $connection->fetchAll($select);
-                        
-                        foreach ($rows as $row) {
-                            $result[] = array(
-                                'entity_id' => $row['entity_id'],
-                                'color_value' => $row['color_value'],
-                                'size_value' => $row['size_value']
-                            );
-                        }  
+                    $select = $connection->select()
+                        ->from(array('cp_int1' => $table1), array('entity_id'))
+                        ->join(array('eav1' => $table2), 'cp_int1.attribute_id = eav1.attribute_id', array())
+                        ->join(array('eavo_value1' => $table3), 'cp_int1.value = eavo_value1.option_id', array('color_value' => 'value'))
+                        ->join(array('cp_int2' => $table1), 'cp_int1.entity_id = cp_int2.entity_id', array())
+                        ->join(array('eav2' => $table2), 'cp_int2.attribute_id = eav2.attribute_id', array())
+                        ->join(array('eavo_value2' => $table3), 'cp_int2.value = eavo_value2.option_id', array('size_value' => 'value'))
+                        ->where('eav1.attribute_code = ?', 'color')
+                        ->where('cp_int1.entity_id = ?', $childId)
+                        ->where('eav2.attribute_code = ?', 'size')
+                        ->where('cp_int2.entity_id = ?', $childId);
 
-                        return $result;
+                    $testing = $select->__toString(); 
 
-                     
+                    $rows = $connection->fetchAll($select);
 
-                        // $productItem->setWishlistItemId($result);
-                        // // $productItem->setWishlistItemId($childId);
-                        // $productItem->setWishlistQty($setQty);
-                        // // $productItem->setColorAndSize($result);
-    
+                    foreach ($rows as $row) {
+                        $result[] = array(
+                            'entity_id' => $row['entity_id'],
+                            'color_value' => $row['color_value'],
+                            'size_value' => $row['size_value']
+                        );
+
+                        $setSimpleProductColor = $row['color_value'];
+                        $setSimpleProductSize = $row['size_value'];
+                        // var_dump($setSimpleProductColor);
+                        // var_dump($setSimpleProductSize);
+                        $setProductAttributes = [];
+                        $productAttributes = $this->simpleProductDataFactory->create();
+                        $productAttributes->setSimpleProductColor($setSimpleProductColor);
+                        $productAttributes->setSimpleProductSize($setSimpleProductSize);
+                        $setProductAttributes[] = $productAttributes;                        
+                        // var_dump($productAttributes->getSimpleProductColor());
+                        $productItem->setSimpleProductItems($setProductAttributes);
+                        // foreach($productItem->getItems() as $productItem){
+                        //     var_dump($productItem->getSimpleProductSize());
+                        // }
+                        $productItem->setWishlistItemId($childId);
+                        $productItem->setWishlistQty($setQty);
+
                         $setProduct[] = $productItem; 
 
-                    
-                }    
-                else 
-                {
-                    //$productItem->setWishlistItemId($childId);
-                    $productItem->setWishlistItemId(8888);
+                    }  
+                           
+                }                 
+                else {
+                    $productItem->setWishlistItemId($childId);
                     $productItem->setWishlistQty($setQty);
-                 //   $productItem->setColorAndSize($result);
+                    $setProduct[] = $productItem;
+                } 
 
-                    $setProduct[] = $productItem; 
-                }         
-
-            }
-            else {
+            } else {
+                
                 $setWishlistItemId = $wishlistItemIdList[$productItemId][0];
                 $setQty = $wishlistItemIdList[$productItemId][1];
 
-                $productItem->setWishlistItemId(999);
+                $productItem->setWishlistItemId($setWishlistItemId);
                 $productItem->setWishlistQty($setQty);
-
-                $setProduct[] = $productItem;   
-            }   
-        }
-
-        // if (count($wishlistItemIdList) == 3) {
-
-        //     $product = $productList->getItems(); 
+                $setProduct[] = $productItem;
+            }
             
-        //     foreach ($product as $productItem) {
-                
-        //         $productItemId = $productItem->getId();
-
-        //         $setWishlistItemId = $wishlistItemIdList[$productItemId][0];
-        //         $setQty = $wishlistItemIdList[$productItemId][1];
-        //         $attribute = $wishlistItemIdList[$productItemId][2];
-               
-        //         $childProduct = $this->configurable->getProductByAttributes($attribute, $productItem);
-        //         $childId = $childProduct->getId();
-
-        //         if ($productItem->getId() == $childId) {
-        //             $product->setConfigurableProductList([$productItem]); 
-        //         }
-
-        //         $setProduct[] = $product;
-        //     }            
-
-        // } 
-        // else {
-
-        //     $product = $productList->getItems();
-        //     foreach ($product as $productItem) {
-
-        //         $productItemId = $productItem->getId();
-
-        //         $setWishlistItemId = $wishlistItemIdList[$productItemId][0];
-        //         $setQty = $wishlistItemIdList[$productItemId][1];
-
-        //         $productItem->setWishlistItemId($setWishlistItemId);
-        //         $productItem->setWishlistQty($setQty);
-
-        //         $setProduct[] = $productItem; 
-               
-        //     }
-
-        // }
-        
-            
+        } 
         $searchResult->setItems($setProduct);
         $searchResult->setTotalCount($this->getWishlistTotalCount($customerId));
         return $searchResult;
-     
     }
 }
