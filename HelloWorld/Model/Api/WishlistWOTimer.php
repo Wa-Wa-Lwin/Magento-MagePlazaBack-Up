@@ -980,20 +980,24 @@ class Wishlist implements PostManagementInterface
                     $table1 = $connection->getTableName('catalog_product_entity_int');
                     $table2 = $connection->getTableName('eav_attribute');
                     $table3 = $connection->getTableName('eav_attribute_option_value');
+                    $table4 = $connection->getTableName('catalog_product_entity_varchar');
+                    $table5 = $connection->getTableName('catalog_product_super_link');
+                    $table6 = $connection->getTableName('catalog_product_entity');
 
                     $select = $connection->select()
                         ->from(array('cp_int1' => $table1), array('entity_id'))
                         ->join(array('eav1' => $table2), 'cp_int1.attribute_id = eav1.attribute_id', array())
                         ->join(array('eavo_value1' => $table3), 'cp_int1.value = eavo_value1.option_id', array('color_value' => 'value'))
+                        ->join(array('cpv' => $table4), 'cpv.entity_id = cp_int1.entity_id', array('image_file_path' => 'value'))
                         ->join(array('cp_int2' => $table1), 'cp_int1.entity_id = cp_int2.entity_id', array())
                         ->join(array('eav2' => $table2), 'cp_int2.attribute_id = eav2.attribute_id', array())
                         ->join(array('eavo_value2' => $table3), 'cp_int2.value = eavo_value2.option_id', array('size_value' => 'value'))
+                        ->join(array('cpsl' => $table5), 'cpsl.product_id = cpv.entity_id', array())
+                        ->join(array('cpe' => $table6), 'cpsl.parent_id = cpe.entity_id', array())
                         ->where('eav1.attribute_code = ?', 'color')
                         ->where('cp_int1.entity_id = ?', $childId)
-                        ->where('eav2.attribute_code = ?', 'size')
-                        ->where('cp_int2.entity_id = ?', $childId);
-
-                    $testing = $select->__toString(); 
+                        ->join(array('ea' => $table2), 'cpv.attribute_id = ea.attribute_id', array())
+                        ->where('ea.attribute_code = ?', 'image');
 
                     $rows = $connection->fetchAll($select);
 
@@ -1001,17 +1005,84 @@ class Wishlist implements PostManagementInterface
                         $result[] = array(
                             'entity_id' => $row['entity_id'],
                             'color_value' => $row['color_value'],
-                            'size_value' => $row['size_value']
+                            'size_value' => $row['size_value'],
+                            'image_file_path' => $row['image_file_path']
                         );
+
+
+
+                    // $connection = $this->resourceConnection->getConnection();
+
+                    // $table1 = $connection->getTableName('catalog_product_entity_int');
+                    // $table2 = $connection->getTableName('eav_attribute');
+                    // $table3 = $connection->getTableName('eav_attribute_option_value');
+                    // $table4 = $connection->getTableName('catalog_product_entity_varchar');
+                    // $table5 = $connection->getTableName('catalog_product_super_link');
+                    // $table6 = $connection->getTableName('catalog_product_entity');
+
+                    // $select = $connection->select()
+                    //     ->from(array('cp_int1' => $table1), array('entity_id'))
+                    //     ->join(array('eav1' => $table2), 'cp_int1.attribute_id = eav1.attribute_id', array())
+                    //     ->join(array('eavo_value1' => $table3), 'cp_int1.value = eavo_value1.option_id', array('color_value' => 'value'))
+                    //     ->join(array('cpv' => $table4), 'cpv.entity_id = cp_int1.entity_id', array('image_file_path' => 'value'))
+                    //     ->join(array('cpsl' => $table5), 'cpsl.product_id = cpv.entity_id', array())
+                    //     ->join(array('cpe' => $table6), 'cpsl.parent_id = cpe.entity_id', array())
+                    //     ->where('eav1.attribute_code = ?', 'color')
+                    //     ->where('cp_int1.entity_id = ?', $childId)
+                    //     ->where('cpv.attribute_id IN (?)', $imageAttributeId);
+
+                    // $rows = $connection->fetchAll($select);
+
+                    // foreach ($rows as $row) {
+                    //     $result[] = array(
+                    //         'entity_id' => $row['entity_id'],
+                    //         'color_value' => $row['color_value'],
+                    //         'image_file_path' => $row['image_file_path']
+                    //     );
+                    
+
+
+                    // $connection = $this->resourceConnection->getConnection();
+
+                    // $table1 = $connection->getTableName('catalog_product_entity_int');
+                    // $table2 = $connection->getTableName('eav_attribute');
+                    // $table3 = $connection->getTableName('eav_attribute_option_value');
+
+                    // $select = $connection->select()
+                    //     ->from(array('cp_int1' => $table1), array('entity_id'))
+                    //     ->join(array('eav1' => $table2), 'cp_int1.attribute_id = eav1.attribute_id', array())
+                    //     ->join(array('eavo_value1' => $table3), 'cp_int1.value = eavo_value1.option_id', array('color_value' => 'value'))
+                    //     ->join(array('cp_int2' => $table1), 'cp_int1.entity_id = cp_int2.entity_id', array())
+                    //     ->join(array('eav2' => $table2), 'cp_int2.attribute_id = eav2.attribute_id', array())
+                    //     ->join(array('eavo_value2' => $table3), 'cp_int2.value = eavo_value2.option_id', array('size_value' => 'value'))
+                    //     ->where('eav1.attribute_code = ?', 'color')
+                    //     ->where('cp_int1.entity_id = ?', $childId)
+                    //     ->where('eav2.attribute_code = ?', 'size')
+                    //     ->where('cp_int2.entity_id = ?', $childId);
+
+                    // $testing = $select->__toString(); 
+
+                    // $rows = $connection->fetchAll($select);
+
+                    // foreach ($rows as $row) {
+                    //     $result[] = array(
+                    //         'entity_id' => $row['entity_id'],
+                    //         'color_value' => $row['color_value'],
+                    //         'size_value' => $row['size_value']
+                    //     );
 
                         $setSimpleProductColor = $row['color_value'];
                         $setSimpleProductSize = $row['size_value'];
+                        $setSimpleProductImagePath = $row['image_file_path'];
                         // var_dump($setSimpleProductColor);
                         // var_dump($setSimpleProductSize);
                         $setProductAttributes = [];
                         $productAttributes = $this->simpleProductDataFactory->create();
                         $productAttributes->setSimpleProductColor($setSimpleProductColor);
                         $productAttributes->setSimpleProductSize($setSimpleProductSize);
+
+                        $productAttributes->setSimpleProductImagePath($setSimpleProductImagePath);
+
                         $setProductAttributes[] = $productAttributes;                        
                         // var_dump($productAttributes->getSimpleProductColor());
                         $productItem->setSimpleProductItems($setProductAttributes);
