@@ -970,123 +970,9 @@ class Wishlist implements PostManagementInterface
 
                 $childProduct = $this->configurable->getProductByAttributes($attribute, $productItem);
                 $childId = $childProduct->getId();
-                
-                // if (isset($childId)) {
 
-                //     $attributeArray = $productItem->getExtensionAttributes()->getConfigurableProductOptions();
-                
-                //     foreach ($attributeArray as $attributeList){
-                //         $attributeListId = $attributeList->getId(); 
-                //         $attributeListAttributeId = $attributeList->getAttributeId(); 
-                //         $attributeLisLabel = $attributeList->getLabel(); 
-                //         // var_dump($attributeListId); 
-                //         // var_dump($attributeListAttributeId); 
-
-                //         //$result = array();
-
-                //         $connection = $this->resourceConnection->getConnection();
-
-                //         $table1 = $connection->getTableName('catalog_product_entity_int');
-                //         $table2 = $connection->getTableName('eav_attribute');
-                //         $table3 = $connection->getTableName('eav_attribute_option_value');
-                //         $table4 = $connection->getTableName('eav_attribute_option_swatch');
-
-                //         $select = $connection->select()
-                //             ->from(
-                //                 ['cp_int' => $table1],
-                //                 []
-                //             )
-                //             ->join(
-                //                 ['eav_attribute' => $table2],
-                //                 'cp_int.attribute_id = eav_attribute.attribute_id',
-                //                 []
-                //             )
-                //             ->join(
-                //                 ['eav_attribute_option_value' => $table3],
-                //                 'cp_int.value = eav_attribute_option_value.option_id',
-                //                 ['option_value' => 'eav_attribute_option_value.value']
-                //             )
-                //             ->joinLeft(
-                //                 ['eav_attribute_option_swatch' => $table4],
-                //                 'eav_attribute_option_value.option_id = eav_attribute_option_swatch.option_id',
-                //                 ['option_code' => 'eav_attribute_option_swatch.value']
-                //             )
-                //             ->where('eav_attribute.attribute_id = ?', $attributeListAttributeId)
-                //             ->where('cp_int.entity_id = ?', $childId)
-                //             ->limit(1);
-
-                        
-                //         $testing = $select->__toString(); 
-
-                //         $logger->info($testing); 
-
-
-                //         $rows = $connection->fetchRow($select);
-
-                //         // var_dump($rows['option_value']);
-                //         // var_dump($rows['option_code']);
-
-                //         $setOptionValue = $rows['option_value'];
-                //         $setOptionCode = $rows['option_code'];
-
-                //         $setProductAttributes = [];
-                //         $productAttributes = $this->simpleProductDataFactory->create();
-
-                //         $productAttributes->setOptionName($attributeLisLabel);
-
-                //         $productAttributes->setOptionValue($setOptionValue);
-                //         $productAttributes->setOptionCode($setOptionCode);
-
-                //         $logger->info($productAttributes);
-
-                //         $setProductAttributes[] = $productAttributes;                        
-                  
-
-                //         $productItem->setSimpleProductItems($setProductAttributes);
+                //var_dump(count($childId));
                      
-                //         $productItem->setWishlistItemId($childId);
-                //         $productItem->setWishlistQty($setQty);
-
-                        
-                //         $setProduct[] = $productItem; 
-
-                //         //var_dump($setProduct);
-
-                //         return($setProduct);
-                           
-
-                //         // foreach ($rows as $row) {
-                //         //     // $result[] = array(
-                //         //     //     //'entity_id' => $row['entity_id'],
-                //         //     //     'option_value1' => $row['option_value'],
-                //         //     //     'option_code1' => $row['option_code']
-                //         //     // );
-    
-                //         //     $setOptionValue = $row['option_value'];
-                //         //     $setOptionCode = $row['option_code'];
-                           
-                //         //     $setProductAttributes = [];
-                //         //     $productAttributes = $this->simpleProductDataFactory->create();
-                //         //     $productAttributes->setOptionValue($setOptionValue);
-                //         //     $productAttributes->setOptionCode($setOptionCode);
-                //         //     $setProductAttributes[] = $productAttributes;                        
-                //         //     var_dump($productAttributes->setOptionValue());
-
-                //         //     $productItem->setSimpleProductItems($setProductAttributes);
-                         
-                //         //     $productItem->setWishlistItemId($childId);
-                //         //     $productItem->setWishlistQty($setQty);
-    
-                            
-                //         //     $setProduct[] = $productItem; 
-
-                //         //     var_dump($setProduct);
-    
-                //         // }                         
-
-                //     }
-                // }  
-                
                 if (isset($childId)) {
                     $attributeArray = $productItem->getExtensionAttributes()->getConfigurableProductOptions();
                 
@@ -1094,10 +980,11 @@ class Wishlist implements PostManagementInterface
 
                     $setProductAttributes = [];
 
-                    var_dump(count($attributeArray));
+                  //  var_dump(count($attributeArray));
                 
                     foreach ($attributeArray as $attributeList) {
                         $attributeListId = $attributeList->getId();
+                       // var_dump($attributeListId); 
                         $attributeListAttributeId = $attributeList->getAttributeId();
                         $attributeLisLabel = $attributeList->getLabel();
 
@@ -1139,104 +1026,53 @@ class Wishlist implements PostManagementInterface
                         $testing = $select->__toString(); 
 
                         $logger->info($testing);
-                        
-                
-                        // if (!empty($rows)) {
-                        //     $setOptionValue = $rows['option_value'];
-                        //     $setOptionCode = $rows['option_code'];
-                
-                        //     $setProductAttributes = [];
-                        //     $productAttributes = $this->simpleProductDataFactory->create();
-                
-                        //     $productAttributes->setOptionName($attributeLisLabel);
-                        //     $productAttributes->setOptionValue($setOptionValue);
-                        //     $productAttributes->setOptionCode($setOptionCode);
-                
-                        //     $setProductAttributes[] = $productAttributes;
-                
-                        //     $productItem->setSimpleProductItems($setProductAttributes);
-                        //     $productItem->setWishlistItemId($childId);
-                        //     $productItem->setWishlistQty($setQty);
-                
-                        //     $setProduct[] = $productItem;
-                        // }
 
-                        
-                        
-                        if (!empty($rows)) {
-                            foreach($rows as $row){
-                                // $result[] = array(
-                             
-                                //     'option_value' => $row['option_value'],
-                                //     'option_code' => $row['option_code']
-                                // );
+                        foreach($rows as $row){
 
-                                $setOptionValue = $row['option_value'];
-                                $setOptionCode = $row['option_code'];
-                    
-                                
-                                $productAttributes = $this->simpleProductDataFactory->create();
-                    
-                                $productAttributes->setOptionName($attributeLisLabel);
-                                $productAttributes->setOptionValue($setOptionValue);
-                                $productAttributes->setOptionCode($setOptionCode);
-                    
-                                $setProductAttributes[] = $productAttributes;
-                    
-                                // $productItem->setSimpleProductItems($setProductAttributes);
-                                // $productItem->setWishlistItemId($childId);
-                                // $productItem->setWishlistQty($setQty);
-                    
-                                // $setProduct[] = $productItem;
-
-                                // $logger->info($setOptionCode);
-
+                            $result[] = array(
+                                'option_value' => $row['option_value'],
+                                'option_code' => $row['option_code']
+                            );
+    
+         
+                            $setOptionValue = $row['option_value'];
+                            $setOptionCode = $row['option_code'];
+                
                             
+                            $productAttributes = $this->simpleProductDataFactory->create();
+                
+                            $productAttributes->setOptionName($attributeLisLabel);
+                            $productAttributes->setOptionValue($setOptionValue);
+                            $productAttributes->setOptionCode($setOptionCode);
+                
+                            $setProductAttributes[] = $productAttributes;
 
-                            }
+                            $productItem->setWishlistOptions($setProductAttributes);
+                            //$productItem->setSimpleProductItems($setProductAttributes);
+                            
+                            $productItem->setWishlistItemId($childId);
+                            $productItem->setWishlistQty($setQty);
+                
+                            $setProduct[] = $productItem;
+
+                  
+
                         }
-
-
+                                  
+                        
+                        
+                            
+                        
                       
                     }
 
-
-                    $productItem->setSimpleProductItems($setProductAttributes);
-                    $productItem->setWishlistItemId($childId);
-                    $productItem->setWishlistQty($setQty);
+                    // $productItem->setSimpleProductItems($setProductAttributes);
+                    // $productItem->setWishlistItemId($childId);
+                    // $productItem->setWishlistQty($setQty);
         
-                    $setProduct[] = $productItem;
+                    // $setProduct[] = $productItem;
 
-                    $logger->info($setOptionCode);
-
-                    
-                //     if (!empty($rows)) {
-                //         $setOptionValue = $rows['option_value'];
-                //         $setOptionCode = $rows['option_code'];
-
-                //         var_dump($setOptionValue); 
-                //         var_dump($setOptionCode); 
-            
-                //         // $setProductAttributes = [];
-                //         // $productAttributes = $this->simpleProductDataFactory->create();
-            
-                //         // $productAttributes->setOptionName($attributeLisLabel);
-                //         // $productAttributes->setOptionValue($setOptionValue);
-                //         // $productAttributes->setOptionCode($setOptionCode);
-            
-                //         // $setProductAttributes[] = $productAttributes;
-            
-                //         // $productItem->setSimpleProductItems($setProductAttributes);
-                //         // $productItem->setWishlistItemId($childId);
-                //         // $productItem->setWishlistQty($setQty);
-            
-                //         $setProduct[] = $productItem;
-                //     }
-
-                //    // return($setProduct);
-
-                   
-                
+                    // $logger->info($setOptionCode);           
                    
                 }
                 
