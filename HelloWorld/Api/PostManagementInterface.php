@@ -11,11 +11,26 @@ interface PostManagementInterface
      */
     public function getWishlistForCustomer($customerId);
 
+    // /**
+    //  * get wishlist details list for customer
+    //  * @param int $customerId
+    //  * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+    //  * @return \MIT\Product\Api\Data\CustomProductSearchResultsInterface
+    //  */
+
+    // C:\MIT\Product\Api\ProductApiInterface.php
+    //  /**
+    //  * get wishlist details list for customer
+    //  * @param int $customerId
+    //  * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+    //  * @return \MIT\Product\Api\Data\ProductResultListInterface[]
+    //  */
+
     /**
      * get wishlist details list for customer
      * @param int $customerId
      * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
-     * @return \MIT\Product\Api\Data\CustomProductSearchResultsInterface
+     * @return \MIT\Product\Api\ProductApiInterface
      */
     public function getWishlistDetailForCustomer($customerId, \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria);
 
