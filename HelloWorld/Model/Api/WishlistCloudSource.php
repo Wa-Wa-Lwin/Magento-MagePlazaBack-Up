@@ -36,10 +36,6 @@ use MIT\Product\Api\Data\CustomProductSearchResultsInterfaceFactory;
 use MIT\Product\Model\Api\CustomProductFactory as CustomProductApiFactory;
 use MIT\Product\Model\CustomProductFactory;
 
-
-use MIT\Product\Api\ProductApiInterface;
-use MIT\Product\Api\Data\ProductResultListInterface;
-
 use MIT\Product\Model\SimpleProductDataFactory as SimpleProductDataFactory;
 
 use Psr\Log\LoggerInterface;
@@ -84,19 +80,6 @@ class Wishlist implements PostManagementInterface
      * @var CustomProductFactory
      */
     protected $customProductFactory;
-
-
-     /**
-     * @var ProductApiInterface
-     */
-    private $productApiInterface;
-
-    /**
-     * @var ProductResultListInterface
-     */
-    private $productResultListInterface;
-
-       
 
     /**
      * @var LoggerInterface
@@ -222,11 +205,6 @@ class Wishlist implements PostManagementInterface
         \Magento\Checkout\Model\SessionFactory $checkoutSession,
         \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
         \MIT\Product\Api\CustomProductInterface $customProduct,
-
-        ProductApiInterface $productApiInterface,
-
-        ProductResultListInterface $productResultListInterface,
-
         CustomProductFactory $customProductFactory,
         ProductAttributeRepositoryInterface $attributeRepository,
         LoggerInterface $logger,
@@ -272,11 +250,6 @@ class Wishlist implements PostManagementInterface
         $this->checkoutSession = $checkoutSession;
         $this->cartRepository = $cartRepository;
         $this->customProduct = $customProduct;
-
-        $this->productApiInterface = $productApiInterface;
-        $this->productResultListInterface = $productResultListInterface;
-  
-
         $this->customProductFactory = $customProductFactory;
         $this->attributeRepository = $attributeRepository;
         $this->logger = $logger;
@@ -325,7 +298,8 @@ class Wishlist implements PostManagementInterface
         return $wishlistData;
     }
 
-   
+  
+
     /**
      * get wishlist details for customer
      * @param string $customerId
@@ -789,6 +763,8 @@ class Wishlist implements PostManagementInterface
             $attributesPair[$attributeId] = (int) $childProduct->getData($attributeCode);
         }
         return $attributesPair;
+        // echo "<pre>";
+        // print_r($attributesPair);
     }
 
     /**
@@ -862,10 +838,12 @@ class Wishlist implements PostManagementInterface
     {
         $quote = $this->quoteRepository->getActiveForCustomer($customerId);
         $productObj = $this->productRepository->getById($productId);
+        // var_dump($productObj->getStatus());
         $item = $this->quoteItemFactory->create();
         $item->setSku($productObj->getSku());
         $item->setQty($qty);
         $item->setQuoteId($quote->getId());
+        // echo(json_encode($superAttribute));
         if (count($superAttribute) > 0 && $isConfigurable) {
             $configurableOptions = [];
             foreach ($superAttribute as $key => $value) {
@@ -879,19 +857,21 @@ class Wishlist implements PostManagementInterface
             $extensionAttribute->setConfigurableItemOptions($configurableOptions);
             $productOption->setExtensionAttributes($extensionAttribute);
             $item->setProductOption($productOption);
-    
+            // echo ($item->getProductOption()->getExtensionAttributes()->getConfigurableItemOptions()[0]->getOptionId());
         }
-     
+        // $quoteItems = $quote->getItems();
+        // $quoteItems[] = $item;
+        // $quote->setItems($quoteItems);
+        // $this->quoteRepository->save($quote);
+        // $quote->collectTotals();
         $this->quoteItemRepository->save($item);
         return true;
     }
 
-
-     /**
+      /**
      * get wishlist details list for customer
-     * @param int $customerId
-     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
-     * @return \MIT\Product\Api\Data\ProductResultListInterface
+     * @param string $customerId
+    * @return \MIT\Product\Api\Data\CustomProductSearchResultsInterface
      */
     public function getWishlistDetailForCustomer($customerId, SearchCriteriaInterface $searchCriteria)
     {
@@ -899,76 +879,69 @@ class Wishlist implements PostManagementInterface
         $searchResult = $this->customProductSearchResultsInterface->create();
         $searchResult->setSearchCriteria($searchCriteria);
 
-        $storeId = $this->storeManager->getStore()->getId();
-        $collection = $this->itemCollectionFactory->create();
-        $collection->addFieldToSelect('qty');
-        $collection->getSelect()->joinInner('wishlist', 'wishlist.wishlist_id = main_table.wishlist_id', 'customer_id');
-        $collection->getSelect()->joinInner('wishlist_item_option', 'wishlist_item_option.wishlist_item_id = main_table.wishlist_item_id', ['value', 'code', 'product_id', 'wishlist_item_id']);
-        $collection->getSelect()->where('wishlist.customer_id = ? ', $customerId)
-            ->where('wishlist_item_option.code = ? ', 'info_buyRequest')
-            ->where('main_table.store_id = ? ', $storeId);
-        $collection->setPageSize($searchCriteria->getPageSize())
-            ->setCurPage($searchCriteria->getCurrentPage());    
-        $productIdList = [];
-        $wishlistItemIdList = [];
-        $attribute = [];
-        foreach ($collection as $item) {
-            $value = json_decode($item['value'], true);
-            $productId = $item['product_id'];
-            $wishlistItemId = $item['wishlist_item_id'];
-            $qty = $item['qty'];
-            $productIdList[] = $item['product_id'];
-            if (array_key_exists('super_attribute', $value)) {
-                $attribute = $value['super_attribute'];
-                $wishlistItemIdList[$productId] = array($wishlistItemId, $qty, $attribute);
-            } else {
-                $wishlistItemIdList[$productId] = array($wishlistItemId, $qty);
-            } 
-        }
+        // $searchResult = $this->customProductSearchResultsInterface->create();
+        // $searchResult->setSearchCriteria($searchCriteria);
+        // // $storeId = $this->storeManager->getStore()->getId();
+        // $collection = $this->itemCollectionFactory->create();
+        // $collection->addFieldToSelect('qty');
+        // $collection->getSelect()->joinInner('wishlist', 'wishlist.wishlist_id = main_table.wishlist_id', 'customer_id');
+        // $collection->getSelect()->joinInner('wishlist_item_option', 'wishlist_item_option.wishlist_item_id = main_table.wishlist_item_id', ['value', 'code', 'product_id', 'wishlist_item_id']);
+        // $collection->getSelect()->where('wishlist.customer_id = ? ', $customerId)
+        //     ->where('wishlist_item_option.code = ? ', 'info_buyRequest')
+        //     ->where('main_table.store_id = ? ', $storeId);
+        // $collection->setPageSize($searchCriteria->getPageSize())
+        //     ->setCurPage($searchCriteria->getCurrentPage());    
+        // $productIdList = [];
+        // $wishlistItemIdList = [];
+        // $attribute = [];
+        // foreach ($collection as $item) {
+        //     $value = json_decode($item['value'], true);
+        //     $productId = $item['product_id'];
+        //     $wishlistItemId = $item['wishlist_item_id'];
+        //     $qty = $item['qty'];
+        //     $productIdList[] = $item['product_id'];
+        //     if (array_key_exists('super_attribute', $value)) {
+        //         $attribute = $value['super_attribute'];
+        //         $wishlistItemIdList[$productId] = array($wishlistItemId, $qty, $attribute);
+        //     } else {
+        //         $wishlistItemIdList[$productId] = array($wishlistItemId, $qty);
+        //     } 
+        // }
 
-        //filter
+        // $filteredSku = $this->_filterBuilder
+        //     ->setConditionType('in')
+        //     ->setField('entity_id')
+        //     ->setValue($productIdList)
+        //     ->create();
+        // $filteredVisibility = $this->_filterBuilder
+        //     ->setConditionType('eq')
+        //     ->setField('visibility')
+        //     ->setValue(4)
+        //     ->create();
+        // $filterGroupList = $this->_filterGroupBuilder
+        //     ->addFilter($filteredSku)
+        //     ->addFilter($filteredVisibility)
+        //     ->create();
+        // $filterGroupList = [];
+        // $filterGroupList[] = $this->_filterGroupBuilder->addFilter($filteredSku)->create();
+        // $filterGroupList[] = $this->_filterGroupBuilder->addFilter($filteredVisibility)->create();
+        // $this->_searchCriteriaBuilder->setFilterGroups($filterGroupList)->create();
+        // $searchCriteria = $this->_searchCriteriaBuilder
+        //     ->setFilterGroups($filterGroupList)
+        //     ->create();
 
-            $filteredSku = $this->_filterBuilder
-                ->setConditionType('in')
-                ->setField('entity_id')
-                ->setValue($productIdList)
-                ->create();
-            $filteredVisibility = $this->_filterBuilder
-                ->setConditionType('eq')
-                ->setField('visibility')
-                ->setValue(4)
-                ->create();
-            $filterGroupList = $this->_filterGroupBuilder
-                ->addFilter($filteredSku)
-                ->addFilter($filteredVisibility)
-                ->create();
-            $filterGroupList = [];
-            $filterGroupList[] = $this->_filterGroupBuilder
-                ->addFilter($filteredSku)
-                ->create();
-            $filterGroupList[] = $this->_filterGroupBuilder
-                ->addFilter($filteredVisibility)
-                ->create();
-            $this->_searchCriteriaBuilder
-                ->setFilterGroups($filterGroupList)
-                ->create();
-            $searchCriteria = $this->_searchCriteriaBuilder
-                ->setFilterGroups($filterGroupList)
-                ->create();
-        //filter
-
-        
-
-        
+        // $productList = $this->customProduct->getList($searchCriteria);
+        // $product = $productList->getItems();
         $setProduct = [];
-        $connection = $this->resourceConnection->getConnection();         
-
-        $productList = $this->productApiInterface->getList(0,$searchCriteria);
+        $connection = $this->resourceConnection->getConnection();      
+        
+        // $productList = $this->productApiInterface->getList(0,$searchCriteria);
 
         $wishlist_collection = $this->wishlist->loadByCustomerId($customerId, true)->getItemCollection();
-  
 
-        foreach ($wishlist_collection as $item) {
+        foreach ($wishlist_collection as $item)
+        {
+            
 
             $parentId = $item->getProductId();
         
@@ -984,16 +957,14 @@ class Wishlist implements PostManagementInterface
 
             $productItemId = $parentId;
 
-            $setWishlistItemId = $wishlistItemIdList[$productItemId][0]; //OK
-            $setQty = $wishlistItemIdList[$productItemId][1]; //OK
-       
-            if ($childId!=$parentId) {
+            $setWishlistItemId = $item->getWishlistItemId(); //OK
+            $setQty = round($item->getQty()); //OK
 
+            if ($childId!=$parentId)
+            {
                 $product = $this->_productRepository->getById($parentId);
 
                 $attributeArray = $product->getExtensionAttributes()->getConfigurableProductOptions();
-
-                // print_r($attributeArray); 
 
                 $setProductAttributes = [];
 
@@ -1037,7 +1008,11 @@ class Wishlist implements PostManagementInterface
                         ->limit(1);
                     $rows = $connection->fetchAll($select);
 
-                    print_r($rows);
+                    $showCountRows = count($rows); 
+
+                    echo ("show count rows -".$showCountRows); 
+
+                   
 
                     foreach ($rows as $row) {
                         $result[] = array(
@@ -1056,196 +1031,58 @@ class Wishlist implements PostManagementInterface
                         $item->setWishlistItemId($childId);
                         $item->setWishlistQty($setQty);
 
-                       // return($item); 
+                       
                     }
                 } 
 
-                echo ("isset".$childId); 
-                echo("<br/>"); 
 
-                // ///////////////size start             
 
-                //     $attributeCodeSize = 'size'; 
+                $catalogProductEntityIntTable = $connection->getTableName('catalog_product_entity_int');
+                $catalogProductEntityVarcharTable = $connection->getTableName('catalog_product_entity_varchar');
+                $eavAttributeTable = $connection->getTableName('eav_attribute');
+                $attributeCode = 'image';
+                $subquery = $connection->select()
+                    ->from($eavAttributeTable, ['attribute_id'])
+                    ->where('attribute_code = ?', $attributeCode);
+                $selectImage = $connection->select()
+                    ->from(
+                        ['cpev' => $catalogProductEntityVarcharTable],
+                        ['image_file_path' => 'cpev.value']
+                    )
+                    ->join(
+                        ['cpei' => $catalogProductEntityIntTable],
+                        'cpei.entity_id = cpev.entity_id',
+                        []
+                    )
+                    ->where('cpei.entity_id = ?', $childId)
+                    ->where('cpev.attribute_id IN (?)', new \Zend_Db_Expr($subquery))
+                    ->limit(1);
 
-                //     $tableSize = $connection->getTableName('eav_attribute');
-                //     $selectAttributeIdSize = $connection->select()
-                //         ->from($tableSize, ['attribute_id'])
-                //         ->where('attribute_code = ?', $attributeCodeSize)
-                //         ->limit(1);
+                $imageFilePath = $connection->fetchOne($selectImage);                    
+                $baseUrl = $this->storeManager->getStore()->getBaseUrl();
+                $simpleProductImagePath = $baseUrl . $imageFilePath;
+                $item->setWishlistImagePath($simpleProductImagePath); 
+                $setProduct[] = $item;    
 
-                //     $attributeIdSize = $connection->fetchOne($selectAttributeIdSize);
 
-                //     $attribute_idSize=$attributeIdSize; 
-                //     $result = array();
-                        
-                //     $table1Size = $connection->getTableName('catalog_product_entity_int');
-                //     $table2Size = $connection->getTableName('eav_attribute');
-                //     $table3Size = $connection->getTableName('eav_attribute_option_value');
-                //     $table4Size = $connection->getTableName('eav_attribute_option_swatch');
-                //     $select = $connection->select()
-                //             ->from(
-                //                 ['cp_int' => $table1Size],
-                //                 []
-                //             )
-                //             ->join(
-                //                 ['eav_attribute' => $table2Size],
-                //                 'cp_int.attribute_id = eav_attribute.attribute_id',
-                //                 []
-                //             )
-                //             ->join(
-                //                 ['eav_attribute_option_value' => $table3Size],
-                //                 'cp_int.value = eav_attribute_option_value.option_id',
-                //                 ['option_value' => 'eav_attribute_option_value.value']
-                //             )
-                //             ->joinLeft(
-                //                 ['eav_attribute_option_swatch' => $table4Size],
-                //                 'eav_attribute_option_value.option_id = eav_attribute_option_swatch.option_id',
-                //                 ['option_code' => 'eav_attribute_option_swatch.value']
-                //             )
-                //             ->where('eav_attribute.attribute_id = ?', $attribute_idSize)
-                //             ->where('cp_int.entity_id = ?', $childId)
-                //             ->limit(1);
-                //     $rows = $connection->fetchAll($select);
-                //     print_r($rows); 
-                //     foreach ($rows as $row) {
-                //         $result[] = array(
-                //             'size_value' => $row['option_value'],
-                //             'size_code' => $row['option_code']
-                //         );
-                //         $setSizeValue = $row['option_value'];
-                //         $setSizeCode = $row['option_code'];
-                //         echo ("size_value".$setSizeValue);
-                //         echo ("size_code".$setSizeCode);                 
-                //     }
 
-                // /////////////size end
 
-                // ///////////////color start             
-
-                //     $attributeCodeColor = 'color'; 
-
-                //     $tableColor = $connection->getTableName('eav_attribute');
-                //     $selectAttributeIdColor = $connection->select()
-                //         ->from($tableColor, ['attribute_id'])
-                //         ->where('attribute_code = ?', $attributeCodeColor)
-                //         ->limit(1);
-
-                //     $attributeIdColor = $connection->fetchOne($selectAttributeIdColor);
-
-                //     $attribute_idColor=$attributeIdColor; 
-                //     $result = array();
-                        
-                //     $table1Color = $connection->getTableName('catalog_product_entity_int');
-                //     $table2Color = $connection->getTableName('eav_attribute');
-                //     $table3Color = $connection->getTableName('eav_attribute_option_value');
-                //     $table4Color = $connection->getTableName('eav_attribute_option_swatch');
-                //     $select = $connection->select()
-                //             ->from(
-                //                 ['cp_int' => $table1Color],
-                //                 []
-                //             )
-                //             ->join(
-                //                 ['eav_attribute' => $table2Color],
-                //                 'cp_int.attribute_id = eav_attribute.attribute_id',
-                //                 []
-                //             )
-                //             ->join(
-                //                 ['eav_attribute_option_value' => $table3Color],
-                //                 'cp_int.value = eav_attribute_option_value.option_id',
-                //                 ['option_value' => 'eav_attribute_option_value.value']
-                //             )
-                //             ->joinLeft(
-                //                 ['eav_attribute_option_swatch' => $table4Color],
-                //                 'eav_attribute_option_value.option_id = eav_attribute_option_swatch.option_id',
-                //                 ['option_code' => 'eav_attribute_option_swatch.value']
-                //             )
-                //             ->where('eav_attribute.attribute_id = ?', $attribute_idColor)
-                //             ->where('cp_int.entity_id = ?', $childId)
-                //             ->limit(1);
-                //     $rows = $connection->fetchAll($select);
-                //     print_r($rows); 
-                //     foreach ($rows as $row) {
-                //         $result[] = array(
-                //             'color_value' => $row['option_value'],
-                //             'color_code' => $row['option_code']
-                //         );
-                //         $setColorValue = $row['option_value'];
-                //         $setColorCode = $row['option_code'];
-                //         echo ("color_value".$setColorValue);
-                //         echo ("color_code".$setColorCode);                 
-                //     }
-
-                // /////////////size end
-
-                // /////////////image start
-
-                //     $attributeCodeImage = 'image';
-                //     $catalogProductEntityIntTable = $connection->getTableName('catalog_product_entity_int');
-                //     $catalogProductEntityVarcharTable = $connection->getTableName('catalog_product_entity_varchar');
-                //     $eavAttributeTable = $connection->getTableName('eav_attribute');
-
-                //     $subquery = $connection->select()
-                //         ->from($eavAttributeTable, ['attribute_id'])
-                //         ->where('attribute_code = ?', $attributeCodeImage);
-                //     $selectImage = $connection->select()
-                //         ->from(
-                //             ['cpev' => $catalogProductEntityVarcharTable],
-                //             ['image_file_path' => 'cpev.value']
-                //         )
-                //         ->join(
-                //             ['cpei' => $catalogProductEntityIntTable],
-                //             'cpei.entity_id = cpev.entity_id',
-                //             []
-                //         )
-                //         ->where('cpei.entity_id = ?', $childId)
-                //         ->where('cpev.attribute_id IN (?)', new \Zend_Db_Expr($subquery))
-                //         ->limit(1);
-
-                //     $imageFilePath = $connection->fetchOne($selectImage);
-                //     $baseUrl = $this->storeManager->getStore()->getBaseUrl();
-                //     $simpleProductImagePath = $baseUrl . $imageFilePath;
-
-                //     echo("------".$simpleProductImagePath."----------------"); 
-                
-                
-                // ///////////////image end
-
-        //     $productAttributes = $this->simpleProductDataFactory->create();
-        //    // $productAttributes->setOptionName($attributeLisLabel);
-        //     $productAttributes->setSizeValue($setSizeValue);
-        //     $productAttributes->setSizeCode($setSizeCode);
-        //     $productAttributes->setColorValue($setColorValue);
-        //     $productAttributes->setColorCode($setColorCode);
-        //     $productAttributes->setImagePathUrl($simpleProductImagePath);
-        //     $setProductAttributes[] = $productAttributes;
-
-            
-        //     $item->setWishlistOptions($setProductAttributes);
-        //     $item->setWishlistItemId($childId);
-        //     $item->setWishlistQty($setQty);
-               
-            } else {
-
-                // $setWishlistItemId = $wishlistItemIdList[$productItemId][0];
-                // $setQty = $wishlistItemIdList[$productItemId][1];
-                // $item->setWishlistItemId($setWishlistItemId);
-                // $item->setWishlistQty($setQty);
-                // $setProduct[] = $item;
-              
             }
-        
-            
-            
-        }
-      //  return $setProduct; 
+            else 
+            {
+                $item->setWishlistItemId($childId);
+                $item->setWishlistQty($setQty);
+                $setProduct[] = $item;
+            }
 
-    
-        
+        }
+
         $searchResult->setItems($setProduct);
         $searchResult->setTotalCount($this->getWishlistTotalCount($customerId));
         return $searchResult;
+  
+
+     
     }
-
-
 }
 

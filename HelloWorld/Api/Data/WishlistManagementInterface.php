@@ -2,7 +2,7 @@
 
 namespace Mageplaza\HelloWorld\Api\Data;
 
-interface WishlistManagementInterface extends \MIT\Product\Api\Data\StatusShowInterface
+interface WishlistManagementInterface // extends \MIT\Product\Api\Data\StatusShowInterface
 {
     const WISHLSIT_COUNT = 'wishlist_count';
     const WISHLIST_ITEM_ID = 'wishlist_item_id';

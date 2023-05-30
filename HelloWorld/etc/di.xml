@@ -3,4 +3,8 @@
     <preference for="Mageplaza\HelloWorld\Api\PostManagementInterface" type="Mageplaza\HelloWorld\Model\Api\Wishlist" />
     <preference for="Mageplaza\HelloWorld\Api\Data\WishlistManagementInterface" type="Mageplaza\HelloWorld\Model\Wishlist" />
     <preference for="Mageplaza\HelloWorld\Api\Data\CustomWishlistInterface" type="Mageplaza\HelloWorld\Model\CustomWishlist" />
+
+	<preference for="Mageplaza\HelloWorld\Api\Data\WishlistProductInterface" type="Mageplaza\HelloWorld\Model\WishlistProduct"/>
+	<preference for="Mageplaza\HelloWorld\Api\Data\WishlistProductResultListInterface" type="Mageplaza\HelloWorld\Model\WishlistProductResultList"/>
+    <preference for="Mageplaza\HelloWorld\Api\Data\WishlistInterface" type="Mageplaza\HelloWorld\Model\WishlistData"/>
 </config>

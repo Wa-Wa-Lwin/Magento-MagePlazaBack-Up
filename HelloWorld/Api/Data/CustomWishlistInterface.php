@@ -33,11 +33,11 @@ interface CustomWishlistInterface
      */
     public function getWishlistQty();
 
-    /**
-     * get product by id including review/rating
-     * @param int $id
-     * @return \MIT\Product\Api\Data\CustomProductManagementInterface
-     */
-    public function getProductDetailBySku($id);
+    // /**
+    //  * get product by id including review/rating
+    //  * @param int $id
+    //  * @return \MIT\Product\Api\Data\CustomProductManagementInterface
+    //  */
+    // public function getProductDetailBySku($id);
 
 }

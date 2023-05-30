@@ -1,5 +1,9 @@
 <?php
+
 namespace Mageplaza\HelloWorld\Api;
+
+use Magento\Framework\Api\SearchCriteriaInterface as SearchCriteriaInterface; 
+
 
 interface PostManagementInterface
 {
@@ -13,26 +17,18 @@ interface PostManagementInterface
 
     // /**
     //  * get wishlist details list for customer
-    //  * @param int $customerId
-    //  * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
-    //  * @return \MIT\Product\Api\Data\CustomProductSearchResultsInterface
-    //  */
+    //  * @param string $customerId
+    //  * @return \Mageplaza\HelloWorld\Api\Data\WishlistProductResultListInterface
+    // */
+    // public function getWishlistDetailForCustomer($customerId,Magento\Framework\Api\SearchCriteriaInterface $searchCriteria);
 
-    // C:\MIT\Product\Api\ProductApiInterface.php
-    //  /**
-    //  * get wishlist details list for customer
-    //  * @param int $customerId
-    //  * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
-    //  * @return \MIT\Product\Api\Data\ProductResultListInterface[]
-    //  */
 
     /**
      * get wishlist details list for customer
-     * @param int $customerId
-     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
-     * @return \MIT\Product\Api\ProductApiInterface
-     */
-    public function getWishlistDetailForCustomer($customerId, \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria);
+     * @param string $customerId
+     * @return \Mageplaza\HelloWorld\Api\Data\WishlistProductResultListInterface
+    */
+    public function getWishlistDetailForCustomer($customerId, SearchCriteriaInterface $searchCriteria);
 
     /**
      * get wishlist details for customer
